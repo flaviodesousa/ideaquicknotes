@@ -23,7 +23,7 @@ package com.jsrana.plugins.quicknotes.manager;
  * @version $Author$
  *          $Source$
  *          $Revision$
- *          $svn:date$
+ *          svn:date
  *          $State$
  *          $Id$
  */
