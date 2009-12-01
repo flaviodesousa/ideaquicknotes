@@ -15,6 +15,7 @@
  */
 package com.jsrana.plugins.quicknotes.manager;
 
+import com.jsrana.plugins.quicknotes.ui.QuickNotesPanel;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -22,7 +23,10 @@ import org.jdom.output.XMLOutputter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Quick Notes Panel
@@ -30,8 +34,7 @@ import java.util.HashMap;
  * @author Jitendra Rana
  */
 public class QuickNotesManager {
-    private int lastLockedNoteIndex;
-    private HashMap lockedNoteMap;
+    private HashMap panelMap;
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
     public static boolean devmode = false;
@@ -40,7 +43,7 @@ public class QuickNotesManager {
      * Do not instantiate QuickNotesManager.
      */
     private QuickNotesManager() {
-        lockedNoteMap = new HashMap();
+        panelMap = new HashMap();
     }
 
     /**
@@ -53,30 +56,58 @@ public class QuickNotesManager {
     }
 
     /**
-     * @param id
-     * @param index
-     * @return
+     * @param panel
      */
-    public boolean lockNote( String id,
-                             int index ) {
-        if ( lockedNoteMap.containsKey( id ) ) {
-            lockedNoteMap.remove( id );
-        }
-        if ( lockedNoteMap.containsValue( index ) ) {
-            return false;
-        }
-        lockedNoteMap.put( id, index );
-        lastLockedNoteIndex = index;
-        return true;
+    public void addQuickNotesPanel( QuickNotesPanel panel ) {
+        panelMap.put( panel.getId(), panel );
     }
 
     /**
-     * Getter for property 'lastLockedNoteIndex'.
      *
-     * @return Value for property 'lastLockedNoteIndex'.
      */
-    public int getLastLockedNoteIndex() {
-        return lastLockedNoteIndex;
+    public void setNoteEditWarning() {
+        HashMap map = new HashMap();
+        for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
+            QuickNotesPanel panel = ( QuickNotesPanel ) panelMap.get( iterator.next() );
+            String index = String.valueOf( panel.getSelectedNoteIndex() );
+            if ( !map.containsKey( index ) ) {
+                map.put( index, new ArrayList() );
+            }
+            ( ( List ) map.get( index ) ).add( panel );
+        }
+
+        for ( Iterator iterator = map.keySet().iterator(); iterator.hasNext(); ) {
+            String key = ( String ) iterator.next();
+            List list = ( List ) map.get( key );
+            if ( list.size() > 1 ) {
+                for ( Iterator it = list.iterator(); it.hasNext(); ) {
+                    ( ( QuickNotesPanel ) it.next() ).setWarning( true );
+                }
+            }
+            else if ( list.size() == 1 ) {
+                ( ( QuickNotesPanel ) list.get( 0 ) ).setWarning( false );
+            }
+        }
+        map.clear();
+    }
+
+    /**
+     * @param panelid
+     */
+    public void syncQuickNotePanels( String panelid ) {
+        if ( panelid != null ) {
+            for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
+                String id = ( String ) iterator.next();
+                if ( id != null && !panelid.equals( id ) ) {
+                    QuickNotesPanel qnp = ( QuickNotesPanel ) panelMap.get( id );
+                    int index = qnp.getSelectedNoteIndex();
+                    if ( index == qnp.element.getChildren().size() ) {
+                        index--;
+                    }
+                    qnp.selectNote( index );
+                }
+            }
+        }
     }
 
     /**
@@ -88,8 +119,12 @@ public class QuickNotesManager {
         return "panel_" + index++;
     }
 
-    public void clearLocks( String quicknoteid ) {
-        lockedNoteMap.remove( quicknoteid );
+    /**
+     * @param panel
+     */
+    public void clearLocks( QuickNotesPanel panel ) {
+        panelMap.remove( panel.getId() );
+        setNoteEditWarning();
     }
 
     /**
@@ -146,5 +181,21 @@ public class QuickNotesManager {
             }
         }
         return true;
+    }
+
+    /**
+     * @param panelid
+     */
+    public void syncNoteText( String panelid ) {
+        QuickNotesPanel panel = ( QuickNotesPanel ) panelMap.get( panelid );
+        for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
+            String id = ( String ) iterator.next();
+            if ( id != null && !panelid.equals( id ) ) {
+                QuickNotesPanel qnp = ( QuickNotesPanel ) panelMap.get( id );
+                if ( qnp.getSelectedNoteIndex() == panel.getSelectedNoteIndex() ) {
+                    qnp.setText( panel.getText() );
+                }
+            }
+        }
     }
 }

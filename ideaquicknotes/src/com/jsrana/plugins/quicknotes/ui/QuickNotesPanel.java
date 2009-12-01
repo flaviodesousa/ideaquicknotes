@@ -20,10 +20,10 @@ import com.jsrana.plugins.quicknotes.renderer.NoteListRenderer;
 import org.jdom.Element;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -33,7 +33,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -44,14 +43,12 @@ import java.util.Vector;
 public class QuickNotesPanel {
     private String id;
     private JPanel panel1;
-    private JTextArea textArea1;
+    private JTextArea pane;
     private JLabel notestitle;
     private JLabel indexLabel;
     private JLabel addedon;
     private JLabel logo;
-    private JPanel body;
     private JScrollPane noteScroller;
-    private JToolBar toolbar;
     private JButton buttonAdd;
     private JButton buttonBack;
     private JButton buttonNext;
@@ -59,36 +56,31 @@ public class QuickNotesPanel {
     private JButton buttonSave;
     private JToggleButton buttonList;
     private JToggleButton buttonLine;
-    private JLabel labelLocked;
     private JButton buttonRename;
     public Element element;
     private int selectedIndex;
     private Element selectedNote;
     private QuickNotesManager quickNotesManager;
-    private JPopupMenu popupMenu;
-    private Hashtable commands;
+    private boolean showLineNumbers = true;
 
-    public static final Border BORDER_BUTTON = BorderFactory.createEmptyBorder( 3, 3, 3, 3 );
-    public static final Border BORDER_BUTTON_HOVER = BorderFactory.createCompoundBorder( BorderFactory.createLineBorder( Color.gray ), BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) );
     private final ImageIcon icon_note = new ImageIcon( getClass().getClassLoader().getResource( "resources/quicknotes32.png" ) );
     private final ImageIcon icon_list = new ImageIcon( getClass().getClassLoader().getResource( "resources/list.png" ) );
     private final ImageIcon icon_list16 = new ImageIcon( getClass().getClassLoader().getResource( "resources/list_16.png" ) );
     private final ImageIcon icon_list16_selected = new ImageIcon( getClass().getClassLoader().getResource( "resources/list_16_selected.png" ) );
     private final ImageIcon icon_forward = new ImageIcon( getClass().getClassLoader().getResource( "resources/forward.png" ) );
-    private final ImageIcon icon_forward_gray = new ImageIcon( getClass().getClassLoader().getResource( "resources/forward_gray.png" ) );
     private final ImageIcon icon_back = new ImageIcon( getClass().getClassLoader().getResource( "resources/back.png" ) );
-    private final ImageIcon icon_back_gray = new ImageIcon( getClass().getClassLoader().getResource( "resources/back_gray.png" ) );
     private final ImageIcon icon_cut = new ImageIcon( getClass().getClassLoader().getResource( "resources/editcut.png" ) );
     private final ImageIcon icon_copy = new ImageIcon( getClass().getClassLoader().getResource( "resources/editcopy.png" ) );
     private final ImageIcon icon_paste = new ImageIcon( getClass().getClassLoader().getResource( "resources/editpaste.png" ) );
     private final ImageIcon icon_delete = new ImageIcon( getClass().getClassLoader().getResource( "resources/editdelete.png" ) );
+    private final ImageIcon icon_warning = new ImageIcon( getClass().getClassLoader().getResource( "resources/warning.png" ) );
 
     private static final Color EDITOR_COLOR_BACKGROUND = new Color( 254, 252, 178 );
     private static final Color EDITOR_COLOR_LINE = new Color( 234, 233, 164 );
     private static final Color EDITOR_COLOR_LINENUMBER = new Color( 189, 183, 107 );
     private static final Insets EDITOR_INSET = new Insets( 0, 25, 0, 0 );
     private static final Insets EDITOR_INSET_LINENUMBER = new Insets( 0, 35, 0, 0 );
-    private boolean showLineNumbers = true;
+    private static final Insets EDITOR_INSET_LINENUMBER_1000 = new Insets( 0, 38, 0, 0 );
     public static SimpleDateFormat sdf = new SimpleDateFormat( "EEE, d MMM yyyy h:mm a" );
 
     /**
@@ -104,6 +96,7 @@ public class QuickNotesPanel {
             public void actionPerformed( ActionEvent e ) {
                 element.addContent( addNewNote() );
                 selectNote( element.getChildren().size() - 1 );
+                quickNotesManager.syncQuickNotePanels( id );
             }
         } );
 
@@ -158,33 +151,18 @@ public class QuickNotesPanel {
         buttonLine.addActionListener( new AbstractAction() {
             public void actionPerformed( ActionEvent e ) {
                 showLineNumbers = buttonLine.isSelected();
-                textArea1.repaint();
-                textArea1.setMargin( showLineNumbers ? EDITOR_INSET_LINENUMBER : EDITOR_INSET );
+                pane.repaint();
                 element.setAttribute( "showlinenumbers", showLineNumbers ? "Y" : "N" );
             }
         } );
 
-
-        textArea1.addKeyListener( new KeyAdapter() {
+        pane.addKeyListener( new KeyAdapter() {
             @Override public void keyReleased( KeyEvent e ) {
-                if ( e.getKeyCode() == 27 ) {
-                    hidePopupMenu();
-                }
-                else {
-                    hidePopupMenu();
-                    getSelectedNote().setText( textArea1.getText() );
-                }
+                getSelectedNote().setText( pane.getText() );
+                quickNotesManager.syncNoteText( id );
             }
         } );
-
-        textArea1.addMouseListener( new MouseAdapter() {
-            @Override public void mousePressed( MouseEvent e ) {
-                hidePopupMenu();
-                if ( e.getButton() == 3 ) {
-                    showPopupMenu();
-                }
-            }
-        } );
+        createPopupMenu();
 
         try {
             showLineNumbers = !"N".equals( element.getAttributeValue( "showlinenumbers" ) );
@@ -193,7 +171,7 @@ public class QuickNotesPanel {
             showLineNumbers = true;
         }
         buttonLine.setSelected( showLineNumbers );
-        textArea1.setMargin( showLineNumbers ? EDITOR_INSET_LINENUMBER : EDITOR_INSET );
+        pane.setMargin( showLineNumbers ? EDITOR_INSET_LINENUMBER : EDITOR_INSET );
 
         selectedIndex = 0;
         try {
@@ -202,6 +180,8 @@ public class QuickNotesPanel {
         catch ( NumberFormatException e ) {
             selectedIndex = 0;
         }
+
+        quickNotesManager.addQuickNotesPanel( this );
         selectNote( selectedIndex );
     }
 
@@ -229,7 +209,7 @@ public class QuickNotesPanel {
      *
      * @return Value for property 'selectedNoteIndex'.
      */
-    private int getSelectedNoteIndex() {
+    public int getSelectedNoteIndex() {
         return selectedIndex;
     }
 
@@ -281,36 +261,21 @@ public class QuickNotesPanel {
      *
      * @param index Index of the Note in Note collection
      */
-    private void selectNote( int index ) {
-        if ( textArea1.getParent() == null ) {
+    public void selectNote( int index ) {
+        if ( pane.getParent() == null ) {
             buttonRename.setVisible( true );
             buttonAdd.setEnabled( true );
             buttonSave.setEnabled( true );
             logo.setIcon( icon_note );
             buttonList.setIcon( icon_list16 );
-            noteScroller.getViewport().add( textArea1 );
-        }
-
-        if ( quickNotesManager.lockNote( id, index ) ) {
-            textArea1.setEditable( true );
-            labelLocked.setText( "" );
-            labelLocked.setToolTipText( "" );
-            buttonTrash.setEnabled( true );
-            buttonRename.setVisible( true );
-        }
-        else {
-            textArea1.setEditable( false );
-            labelLocked.setText( "Locked" );
-            labelLocked.setToolTipText( "This note has been locked by another instance of IDEA" );
-            buttonTrash.setEnabled( false );
-            buttonRename.setVisible( false );
+            noteScroller.getViewport().add( pane );
         }
 
         if ( index >= 0 && index < element.getChildren().size() ) {
             setSelectedNoteIndex( index );
             selectedNote = ( Element ) element.getChildren().get( index );
-            textArea1.setText( selectedNote.getText() );
-            textArea1.setCaretPosition( 0 );
+            pane.setText( selectedNote.getText() );
+            pane.setCaretPosition( 0 );
             notestitle.setText( selectedNote.getAttributeValue( "title" ) );
             addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
             indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
@@ -321,6 +286,7 @@ public class QuickNotesPanel {
             }
         }
         buttonList.setSelected( false );
+        quickNotesManager.setNoteEditWarning();
     }
 
     /**
@@ -337,6 +303,7 @@ public class QuickNotesPanel {
                         setSelectedNoteIndex( getSelectedNoteIndex() - 1 );
                     }
                     selectNote( getSelectedNoteIndex() );
+                    quickNotesManager.syncQuickNotePanels( id );
                 }
             }
         }
@@ -351,7 +318,7 @@ public class QuickNotesPanel {
         File file = fileChooser.getSelectedFile();
         if ( file != null ) {
             try {
-                getSelectedNote().setText( textArea1.getText() );
+                getSelectedNote().setText( pane.getText() );
                 file.createNewFile();
                 StringBuffer sb = new StringBuffer();
                 FileWriter fileWriter = new FileWriter( file );
@@ -386,6 +353,7 @@ public class QuickNotesPanel {
         if ( title != null && title.length() > 0 && !title.equals( notetitle ) ) {
             getSelectedNote().setAttribute( "title", title );
             notestitle.setText( title );
+            quickNotesManager.syncQuickNotePanels( id );
         }
     }
 
@@ -445,7 +413,7 @@ public class QuickNotesPanel {
      * Creates Custom UI Component for Text Area
      */
     private void createUIComponents() {
-        textArea1 = new JTextArea() {
+        pane = new JTextArea() {
             {
                 setOpaque( false );
             }
@@ -463,6 +431,10 @@ public class QuickNotesPanel {
                     y = startLineNumber * fontHeignt - ( fontHeignt - fm.getAscent() );
                 }
                 int yend = y + clip.height + fontHeignt;
+                // making sure it does not go out of control
+                if ( yend > 2048 ) {
+                    yend = 2048;
+                }
                 while ( y < yend ) {
                     if ( showLineNumbers && startLineNumber <= getLineCount() ) {
                         g.setColor( EDITOR_COLOR_LINENUMBER );
@@ -474,12 +446,21 @@ public class QuickNotesPanel {
                 }
                 g.setColor( EDITOR_COLOR_LINENUMBER );
                 if ( showLineNumbers ) {
-                    g.drawLine( 30, 0, 30, getHeight() );
-                    g.drawLine( 32, 0, 32, getHeight() );
+                    if ( getLineCount() < 1000 ) {
+                        g.drawLine( 30, 0, 30, getHeight() );
+                        g.drawLine( 32, 0, 32, getHeight() );
+                        pane.setMargin( EDITOR_INSET_LINENUMBER );
+                    }
+                    else {
+                        g.drawLine( 34, 0, 34, getHeight() );
+                        g.drawLine( 36, 0, 36, getHeight() );
+                        pane.setMargin( EDITOR_INSET_LINENUMBER_1000 );
+                    }
                 }
                 else {
                     g.drawLine( 20, 0, 20, getHeight() );
                     g.drawLine( 22, 0, 22, getHeight() );
+                    pane.setMargin( EDITOR_INSET );
                 }
                 super.paint( g );
             }
@@ -518,139 +499,117 @@ public class QuickNotesPanel {
     }
 
     /**
-     *
-     */
-    public void hidePopupMenu() {
-        if ( popupMenu != null ) {
-            popupMenu.setVisible( false );
-            popupMenu = null;
-        }
-    }
-
-    /**
      * Shows the popup menu in Text Area
      */
-    public void showPopupMenu() {
-        hidePopupMenu();
-        popupMenu = new JPopupMenu();
+    public void createPopupMenu() {
+        JPopupMenu popupMenu = new JPopupMenu();
 
-        JMenuItem cut = new JMenuItem();
-        cut.setAction( findAction( DefaultEditorKit.cutAction ) );
+        JMenuItem cut = new JMenuItem( new DefaultEditorKit.CutAction() );
         cut.setText( "Cut" );
         cut.setIcon( icon_cut );
         cut.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
-                getSelectedNote().setText( textArea1.getText() );
+            public void mouseReleased( MouseEvent e ) {
+                getSelectedNote().setText( pane.getText() );
+                quickNotesManager.syncNoteText( id );
             }
         } );
 
-        JMenuItem copy = new JMenuItem();
-        copy.setAction( findAction( DefaultEditorKit.copyAction ) );
+        JMenuItem copy = new JMenuItem( new DefaultEditorKit.CopyAction() );
         copy.setText( "Copy" );
         copy.setIcon( icon_copy );
-        copy.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
-            }
-        } );
 
-        JMenuItem paste = new JMenuItem();
-        paste.setAction( findAction( DefaultEditorKit.pasteAction ) );
+        JMenuItem paste = new JMenuItem( new DefaultEditorKit.PasteAction() );
         paste.setText( "Paste" );
         paste.setIcon( icon_paste );
         paste.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
-                getSelectedNote().setText( textArea1.getText() );
+            public void mouseReleased( MouseEvent e ) {
+                getSelectedNote().setText( pane.getText() );
+                quickNotesManager.syncNoteText( id );
             }
         } );
 
-        JMenuItem next = new JMenuItem( "Next Note", icon_forward );
-        next.setDisabledIcon( icon_forward_gray );
-        final boolean nextFlag = hasMoreNotes();
-        next.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
-                if ( nextFlag ) {
-                    goNext();
-                }
+        JMenuItem popupNext = new JMenuItem( "Next Note", icon_forward );
+        popupNext.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                goNext();
             }
         } );
-        next.setEnabled( nextFlag );
 
-        JMenuItem back = new JMenuItem( "Previous Note", icon_back );
-        back.setDisabledIcon( icon_back_gray );
-        back.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
-                if ( getSelectedNoteIndex() > 0 ) {
-                    goBack();
-                }
+        JMenuItem popupBack = new JMenuItem( "Previous Note", icon_back );
+        popupBack.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                goBack();
             }
         } );
-        back.setEnabled( getSelectedNoteIndex() > 0 );
 
         JMenuItem delete = new JMenuItem( "Delete Note", icon_delete );
-        delete.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                hidePopupMenu();
+        delete.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
                 deleteNote();
             }
         } );
-
         popupMenu.add( cut );
         popupMenu.add( copy );
         popupMenu.add( paste );
         popupMenu.addSeparator();
-        popupMenu.add( next );
-        popupMenu.add( back );
+        popupMenu.add( popupNext );
+        popupMenu.add( popupBack );
         popupMenu.addSeparator();
         popupMenu.add( delete );
-
-        for ( int i=0; i<popupMenu.getComponentCount(); i++ ) {
-            Object o = popupMenu.getComponent( i );
-            if ( o instanceof JMenuItem ) {
-                JMenuItem item = (JMenuItem) o;
-                item.setHorizontalAlignment( JMenuItem.LEFT );
-                item.setMargin( new Insets( 2, 2, 2, 2 ) );
-                item.setBackground( Color.WHITE );
-                item.setIconTextGap( 5 );
-
-                if ( item.isEnabled() ) {
-                    item.addMouseListener( new MouseAdapter() {
-                        @Override public void mouseEntered( MouseEvent e ) {
-                            ( ( JMenuItem ) e.getSource() ).setBackground( Color.LIGHT_GRAY );
-                        }
-
-                        @Override public void mouseExited( MouseEvent e ) {
-                            ( ( JMenuItem ) e.getSource() ).setBackground( Color.WHITE );
-                        }
-                    } );
-                }
-                else {
-                    item.setForeground( Color.GRAY );
-                }
-            }
-        }
-        popupMenu.pack();
-        popupMenu.setLocation( MouseInfo.getPointerInfo().getLocation() );
-        popupMenu.setVisible( true );
+        pane.addMouseListener( new PopupListener( popupMenu ) );
     }
 
     /**
-     * @param key
+     * @param warning
+     */
+    public void setWarning( boolean warning ) {
+        if ( warning ) {
+            notestitle.setIcon( icon_warning );
+            notestitle.setToolTipText( "This Note is also being edited in another IDEA instance" );
+        }
+        else {
+            notestitle.setIcon( null );
+            notestitle.setToolTipText( null );
+        }
+    }
+
+    /**
      * @return
      */
-    private Action findAction( String key ) {
-        if ( commands == null ) {
-            commands = new Hashtable();
-            Action actions[] = textArea1.getActions();
-            for ( int i = 0; i < actions.length; i++ ) {
-                Action action = actions[i];
-                commands.put( action.getValue( Action.NAME ), action );
-            }
+    public String getText() {
+        return pane.getText();
+    }
+
+    /**
+     * @param text
+     */
+    public void setText( String text ) {
+        pane.setText( text );
+    }
+}
+
+/**
+ *
+ */
+class PopupListener
+        extends MouseAdapter {
+    JPopupMenu popup;
+
+    PopupListener( JPopupMenu popupMenu ) {
+        popup = popupMenu;
+    }
+
+    public void mousePressed( MouseEvent e ) {
+        maybeShowPopup( e );
+    }
+
+    public void mouseReleased( MouseEvent e ) {
+        maybeShowPopup( e );
+    }
+
+    private void maybeShowPopup( MouseEvent e ) {
+        if ( e.isPopupTrigger() ) {
+            popup.show( e.getComponent(), e.getX(), e.getY() );
         }
-        return ( Action ) commands.get( key );
     }
 }

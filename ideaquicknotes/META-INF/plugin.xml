@@ -7,6 +7,11 @@
     <br><br>For any bugs or suggestions, please leave a comment on the plugin page at
     <br><a href='http://plugins.intellij.net/plugin/?id=4456' target='_blank'>http://plugins.intellij.net/plugin/?id=4456</a>
     <p><b><u>Change Log</u></b>
+    <p><b>Version 2.5</b>
+    <ul>
+    <li>The Note is no more locked if opened in multiple IDEA instances. Any changes to a Note gets reflected in other opened instances as well in real time.</li>
+    <li>IDEA instances are now kept in sync when a Note is Added or Deleted or Renamed</li>
+    </ul>
     <p><b>Version 2.4</b>
     <ul>
     <li>Bug fix for Line number alignment (thanks WarnerJan)</li>
@@ -24,9 +29,19 @@
     <li>Minor UI tweaks</li>
     </ul>
     ]]></description>
-    <version>2.4</version>
+    <version>2.5</version>
     <change-notes>
         <![CDATA[
+    <p><b>Version 2.5</b>
+    <ul>
+    <li>The Note is no more locked if opened in multiple IDEA instance. Any changes to a Note gets reflected in other opened instance as well in real time.</li>
+    <li>IDEA instances are now kept in sync when a Note is Added or Deleted or Renamed</li>
+    </ul>
+    <p><b>Version 2.4</b>
+    <ul>
+    <li>Bug fix for Line number alignment (thanks WarnerJan)</li>
+    <li>Added popup menu to editor</li>
+    </ul>
     <b>Version 2.3</b>
     <br>The data is now saved in a file under user's home directory under folder ".ideaquicknote"
     and if for some reason the saving of data fails then data is saved in the plugin's internal storage.

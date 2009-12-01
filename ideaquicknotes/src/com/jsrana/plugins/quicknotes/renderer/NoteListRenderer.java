@@ -27,7 +27,6 @@ public class NoteListRenderer
     private static Color COLOR_SELECTED = new Color( 58, 95, 205 );
 
     /**
-     * 
      * @param list
      * @param value
      * @param index

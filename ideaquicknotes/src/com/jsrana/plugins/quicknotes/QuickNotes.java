@@ -91,12 +91,12 @@ public class QuickNotes
                 Content content = peerFactory.getContentFactory().createContent( quickNotesPanel.getRootComponent(), "", false );
                 toolWindow.getContentManager().addContent( content );
                 toolWindow.setIcon( new ImageIcon( getClass().getClassLoader().getResource( "resources/quicknotes.png" ) ) );
-                project.putUserData( quicknoteskey, quickNotesPanel.getId() );
+                project.putUserData( quicknoteskey, quickNotesPanel );
             }
 
             public void projectClosed( final Project project ) {
                 // clear locks
-                QuickNotesManager.getInstance().clearLocks( ( String ) project.getUserData( quicknoteskey ) );
+                QuickNotesManager.getInstance().clearLocks( ( QuickNotesPanel ) project.getUserData( quicknoteskey ) );
 
                 // save data
                 if ( QuickNotesManager.saveSettings( notesElement ) ) {
