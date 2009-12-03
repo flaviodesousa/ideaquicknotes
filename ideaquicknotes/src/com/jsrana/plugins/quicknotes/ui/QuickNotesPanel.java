@@ -275,7 +275,13 @@ public class QuickNotesPanel {
             setSelectedNoteIndex( index );
             selectedNote = ( Element ) element.getChildren().get( index );
             pane.setText( selectedNote.getText() );
-            pane.setCaretPosition( 0 );
+            if ( pane.getText().equals( "Enter your notes here..." ) ) {
+                pane.select( 0, pane.getDocument().getLength() );
+            }
+            else {
+                pane.setCaretPosition( 0 );
+            }
+            pane.requestFocus();
             notestitle.setText( selectedNote.getAttributeValue( "title" ) );
             addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
             indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
