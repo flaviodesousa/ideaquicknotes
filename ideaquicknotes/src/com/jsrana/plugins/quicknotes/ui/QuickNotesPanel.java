@@ -293,9 +293,7 @@ public class QuickNotesPanel {
             indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
             buttonBack.setEnabled( index > 0 );
             buttonNext.setEnabled( hasMoreNotes() );
-            if ( buttonTrash.isEnabled() ) {
-                buttonTrash.setEnabled( element.getChildren().size() > 1 );
-            }
+            buttonTrash.setEnabled( element.getChildren().size() > 1 );
             if ( requestFocus ) {
                 pane.requestFocus();
             }
