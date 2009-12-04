@@ -104,7 +104,7 @@ public class QuickNotesManager {
                     if ( index == qnp.element.getChildren().size() ) {
                         index--;
                     }
-                    qnp.selectNote( index );
+                    qnp.selectNote( index, false );
                 }
             }
         }

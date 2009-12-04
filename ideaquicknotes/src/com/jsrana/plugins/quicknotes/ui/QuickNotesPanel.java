@@ -28,6 +28,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -95,7 +97,7 @@ public class QuickNotesPanel {
         buttonAdd.addActionListener( new AbstractAction() {
             public void actionPerformed( ActionEvent e ) {
                 element.addContent( addNewNote() );
-                selectNote( element.getChildren().size() - 1 );
+                selectNote( element.getChildren().size() - 1, true );
                 quickNotesManager.syncQuickNotePanels( id );
             }
         } );
@@ -139,7 +141,7 @@ public class QuickNotesPanel {
         buttonList.addActionListener( new AbstractAction() {
             public void actionPerformed( ActionEvent e ) {
                 if ( buttonList.getIcon() == icon_list16_selected ) {
-                    selectNote( getSelectedNoteIndex() );
+                    selectNote( getSelectedNoteIndex(), true );
                 }
                 else {
                     listAllNotes();
@@ -162,6 +164,17 @@ public class QuickNotesPanel {
                 quickNotesManager.syncNoteText( id );
             }
         } );
+
+        pane.addFocusListener( new FocusAdapter() {
+            @Override public void focusGained( FocusEvent e ) {
+                if ( pane.getText().equals( "Enter your notes here..." ) ) {
+                    pane.select( 0, pane.getDocument().getLength() );
+                }
+                else {
+                    pane.setCaretPosition( 0 );
+                }
+            }
+        } );
         createPopupMenu();
 
         try {
@@ -182,7 +195,7 @@ public class QuickNotesPanel {
         }
 
         quickNotesManager.addQuickNotesPanel( this );
-        selectNote( selectedIndex );
+        selectNote( selectedIndex, true );
     }
 
     /**
@@ -243,7 +256,7 @@ public class QuickNotesPanel {
      */
     private void goBack() {
         if ( getSelectedNoteIndex() > 0 ) {
-            selectNote( getSelectedNoteIndex() - 1 );
+            selectNote( getSelectedNoteIndex() - 1, true );
         }
     }
 
@@ -252,7 +265,7 @@ public class QuickNotesPanel {
      */
     private void goNext() {
         if ( getSelectedNoteIndex() < element.getChildren().size() - 1 ) {
-            selectNote( getSelectedNoteIndex() + 1 );
+            selectNote( getSelectedNoteIndex() + 1, true );
         }
     }
 
@@ -261,7 +274,7 @@ public class QuickNotesPanel {
      *
      * @param index Index of the Note in Note collection
      */
-    public void selectNote( int index ) {
+    public void selectNote( int index, boolean requestFocus ) {
         if ( pane.getParent() == null ) {
             buttonRename.setVisible( true );
             buttonAdd.setEnabled( true );
@@ -275,13 +288,6 @@ public class QuickNotesPanel {
             setSelectedNoteIndex( index );
             selectedNote = ( Element ) element.getChildren().get( index );
             pane.setText( selectedNote.getText() );
-            if ( pane.getText().equals( "Enter your notes here..." ) ) {
-                pane.select( 0, pane.getDocument().getLength() );
-            }
-            else {
-                pane.setCaretPosition( 0 );
-            }
-            pane.requestFocus();
             notestitle.setText( selectedNote.getAttributeValue( "title" ) );
             addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
             indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
@@ -289,6 +295,9 @@ public class QuickNotesPanel {
             buttonNext.setEnabled( hasMoreNotes() );
             if ( buttonTrash.isEnabled() ) {
                 buttonTrash.setEnabled( element.getChildren().size() > 1 );
+            }
+            if ( requestFocus ) {
+                pane.requestFocus();
             }
         }
         buttonList.setSelected( false );
@@ -308,7 +317,7 @@ public class QuickNotesPanel {
                     if ( getSelectedNoteIndex() > 0 ) {
                         setSelectedNoteIndex( getSelectedNoteIndex() - 1 );
                     }
-                    selectNote( getSelectedNoteIndex() );
+                    selectNote( getSelectedNoteIndex(), true );
                     quickNotesManager.syncQuickNotePanels( id );
                 }
             }
@@ -385,7 +394,7 @@ public class QuickNotesPanel {
         sList.addMouseListener( new MouseAdapter() {
             @Override public void mouseClicked( MouseEvent e ) {
                 int index = sList.locationToIndex( e.getPoint() );
-                selectNote( index );
+                selectNote( index, true );
             }
         } );
         noteScroller.getViewport().add( sList );
@@ -548,6 +557,13 @@ public class QuickNotesPanel {
             }
         } );
 
+        JMenuItem popupList = new JMenuItem( "List All Notes", icon_list16 );
+        popupList.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                listAllNotes();
+            }
+        } );
+
         JMenuItem delete = new JMenuItem( "Delete Note", icon_delete );
         delete.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
@@ -560,6 +576,7 @@ public class QuickNotesPanel {
         popupMenu.addSeparator();
         popupMenu.add( popupNext );
         popupMenu.add( popupBack );
+        popupMenu.add( popupList );
         popupMenu.addSeparator();
         popupMenu.add( delete );
         pane.addMouseListener( new PopupListener( popupMenu ) );
