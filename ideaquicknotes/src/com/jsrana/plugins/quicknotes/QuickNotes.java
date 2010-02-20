@@ -46,6 +46,7 @@ import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.awt.*;
 
 /**
  * Quick Notes is an IntelliJ IDEA Plugin that provides saving notes in IDEA itself
@@ -167,15 +168,35 @@ public class QuickNotes
             element.setAttribute( "createdt", QuickNotesPanel.sdf.format( new Date() ) );
             element.setAttribute( "selectednoteindex", "0" );
             element.setAttribute( "showlinenumbers", "Y" );
+            element.setAttribute( "toolbarlocation", "0" );
+            element.setAttribute( "fontname", "Arial" );
+            element.setAttribute( "fontsize", "12" );
         }
+
+        QuickNotesManager mgr = QuickNotesManager.getInstance();
+        mgr.setShowLineNumbers( "Y".equals( element.getAttributeValue( "showlinenumbers" ) ) );
+        try {
+            mgr.setToolBarLocation( Integer.parseInt( element.getAttributeValue( "toolbarlocation" ) ) );
+        }
+        catch ( NumberFormatException e ) {
+            mgr.setToolBarLocation( 0 );
+        }
+        int fontsize = 12;
+        try {
+            fontsize = Integer.parseInt( element.getAttributeValue( "fontsize" ) );
+        }
+        catch ( NumberFormatException e ) {
+            // ignore
+        }
+        mgr.setNotesFont( new Font( element.getAttributeValue( "fontname" ), Font.PLAIN, fontsize ) );
 
         List notes = element.getChildren();
         if ( notes.size() == 0 ) {
             element.addContent( addNewNote() );
         }
         else {
-            for ( int i = 0; i < notes.size(); i++ ) {
-                Element note = ( Element ) notes.get( i );
+            for ( Object note1 : notes ) {
+                Element note = ( Element ) note1;
                 if ( note.getAttributeValue( "title" ) == null ) {
                     note.setAttribute( "title", "New Note" );
                 }

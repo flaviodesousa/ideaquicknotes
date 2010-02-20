@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.jsrana.plugins.quicknotes.ui.QuickNotesPanel">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
@@ -71,7 +71,7 @@
       </grid>
       <grid id="1df3c" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -92,131 +92,150 @@
           </scrollpane>
         </children>
       </grid>
-      <toolbar id="139e6">
+      <grid id="990c3" binding="topToolbarPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="-1" height="20"/>
-          </grid>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
-        <properties>
-          <alignmentX value="0.0"/>
-          <autoscrolls value="false"/>
-          <borderPainted value="false"/>
-          <enabled value="true"/>
-          <floatable value="false"/>
-          <opaque value="false"/>
-          <requestFocusEnabled value="false"/>
-          <rollover value="true"/>
-        </properties>
-        <clientProperties>
-          <JToolBar.isRollover class="java.lang.Boolean" value="true"/>
-        </clientProperties>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </grid>
+      <grid id="f3288" binding="bottomToolbarPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
         <border type="none"/>
         <children>
-          <component id="fc149" class="javax.swing.JButton" binding="buttonAdd">
-            <constraints/>
+          <toolbar id="139e6" binding="toolbar">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="-1" height="20"/>
+              </grid>
+            </constraints>
             <properties>
-              <borderPainted value="true"/>
-              <contentAreaFilled value="true"/>
-              <disabledIcon value="resources/add_gray.png"/>
-              <icon value="resources/add.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <text value=""/>
-              <toolTipText value="Add New Note"/>
+              <alignmentX value="0.0"/>
+              <autoscrolls value="false"/>
+              <borderPainted value="false"/>
+              <enabled value="true"/>
+              <floatable value="false"/>
+              <opaque value="true"/>
+              <requestFocusEnabled value="false"/>
+              <rollover value="true"/>
             </properties>
-          </component>
-          <component id="4ec79" class="javax.swing.JToolBar$Separator">
-            <constraints/>
-            <properties>
-              <separatorSize width="2" height="9"/>
-            </properties>
-          </component>
-          <component id="9f546" class="javax.swing.JButton" binding="buttonBack">
-            <constraints/>
-            <properties>
-              <disabledIcon value="resources/back_gray.png"/>
-              <icon value="resources/back.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <text value=""/>
-              <toolTipText value="Previous Note"/>
-            </properties>
-          </component>
-          <component id="4fd13" class="javax.swing.JLabel" binding="indexLabel">
-            <constraints/>
-            <properties>
-              <font name="SansSerif" size="12" style="0"/>
-              <horizontalAlignment value="0"/>
-              <horizontalTextPosition value="0"/>
-              <iconTextGap value="0"/>
-              <text value="1 of 1"/>
-            </properties>
-          </component>
-          <component id="c1b1f" class="javax.swing.JButton" binding="buttonNext">
-            <constraints/>
-            <properties>
-              <disabledIcon value="resources/forward_gray.png"/>
-              <doubleBuffered value="false"/>
-              <icon value="resources/forward.png"/>
-              <iconTextGap value="0"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <text value=""/>
-              <toolTipText value="Next Note"/>
-            </properties>
-          </component>
-          <component id="87e5" class="javax.swing.JToolBar$Separator">
-            <constraints/>
-            <properties>
-              <orientation value="1"/>
-              <separatorSize width="2" height="9"/>
-            </properties>
-          </component>
-          <component id="da5cf" class="javax.swing.JToggleButton" binding="buttonList">
-            <constraints/>
-            <properties>
-              <icon value="resources/list_16.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-            </properties>
-          </component>
-          <component id="39234" class="javax.swing.JButton" binding="buttonTrash">
-            <constraints/>
-            <properties>
-              <disabledIcon value="resources/trash_gray.png"/>
-              <horizontalTextPosition value="0"/>
-              <icon value="resources/trash.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <text value=""/>
-              <toolTipText value="Delete Note"/>
-            </properties>
-          </component>
-          <component id="1407" class="javax.swing.JButton" binding="buttonSave">
-            <constraints/>
-            <properties>
-              <disabledIcon value="resources/save_gray.png"/>
-              <icon value="resources/save.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <text value=""/>
-              <toolTipText value="Save All Notes"/>
-            </properties>
-          </component>
-          <component id="264b5" class="javax.swing.JToggleButton" binding="buttonLine" default-binding="true">
-            <constraints/>
-            <properties>
-              <icon value="resources/linenumber.png"/>
-              <margin top="2" left="2" bottom="2" right="2"/>
-              <toolTipText value="Show/Hide line numbers"/>
-            </properties>
-          </component>
-          <hspacer id="f4bf2">
-            <constraints/>
-          </hspacer>
-          <component id="40fa1" class="javax.swing.JLabel">
-            <constraints/>
-            <properties>
-              <text value="Quick Notes v2.5.1"/>
-            </properties>
-          </component>
+            <clientProperties>
+              <JToolBar.isRollover class="java.lang.Boolean" value="true"/>
+            </clientProperties>
+            <border type="none"/>
+            <children>
+              <component id="fc149" class="javax.swing.JButton" binding="buttonAdd">
+                <constraints/>
+                <properties>
+                  <borderPainted value="true"/>
+                  <contentAreaFilled value="true"/>
+                  <disabledIcon value="resources/add_gray.png"/>
+                  <icon value="resources/add.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Add New Note"/>
+                </properties>
+              </component>
+              <component id="4ec79" class="javax.swing.JToolBar$Separator">
+                <constraints/>
+                <properties>
+                  <separatorSize width="2" height="9"/>
+                </properties>
+              </component>
+              <component id="9f546" class="javax.swing.JButton" binding="buttonBack">
+                <constraints/>
+                <properties>
+                  <disabledIcon value="resources/back_gray.png"/>
+                  <icon value="resources/back.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Previous Note"/>
+                </properties>
+              </component>
+              <component id="4fd13" class="javax.swing.JLabel" binding="indexLabel">
+                <constraints/>
+                <properties>
+                  <font name="SansSerif" size="12" style="0"/>
+                  <horizontalAlignment value="0"/>
+                  <horizontalTextPosition value="0"/>
+                  <iconTextGap value="0"/>
+                  <text value="1 of 1"/>
+                </properties>
+              </component>
+              <component id="c1b1f" class="javax.swing.JButton" binding="buttonNext">
+                <constraints/>
+                <properties>
+                  <disabledIcon value="resources/forward_gray.png"/>
+                  <doubleBuffered value="false"/>
+                  <icon value="resources/forward.png"/>
+                  <iconTextGap value="0"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Next Note"/>
+                </properties>
+              </component>
+              <component id="87e5" class="javax.swing.JToolBar$Separator">
+                <constraints/>
+                <properties>
+                  <orientation value="1"/>
+                  <separatorSize width="2" height="9"/>
+                </properties>
+              </component>
+              <component id="da5cf" class="javax.swing.JToggleButton" binding="buttonList">
+                <constraints/>
+                <properties>
+                  <icon value="resources/list_16.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                </properties>
+              </component>
+              <component id="39234" class="javax.swing.JButton" binding="buttonTrash">
+                <constraints/>
+                <properties>
+                  <disabledIcon value="resources/trash_gray.png"/>
+                  <horizontalTextPosition value="0"/>
+                  <icon value="resources/trash.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Delete Note"/>
+                </properties>
+              </component>
+              <component id="1407" class="javax.swing.JButton" binding="buttonSave">
+                <constraints/>
+                <properties>
+                  <disabledIcon value="resources/save_gray.png"/>
+                  <icon value="resources/save.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Save All Notes"/>
+                </properties>
+              </component>
+              <component id="81fe7" class="javax.swing.JButton" binding="buttonOptions">
+                <constraints/>
+                <properties>
+                  <icon value="resources/exec.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <hspacer id="f4bf2">
+                <constraints/>
+              </hspacer>
+              <component id="40fa1" class="javax.swing.JLabel">
+                <constraints/>
+                <properties>
+                  <text value="Quick Notes v2.6"/>
+                </properties>
+              </component>
+            </children>
+          </toolbar>
         </children>
-      </toolbar>
+      </grid>
     </children>
   </grid>
 </form>

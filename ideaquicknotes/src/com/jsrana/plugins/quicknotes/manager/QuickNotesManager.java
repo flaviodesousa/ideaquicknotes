@@ -20,12 +20,13 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,16 +35,23 @@ import java.util.List;
  * @author Jitendra Rana
  */
 public class QuickNotesManager {
-    private HashMap panelMap;
+    private HashMap<String, QuickNotesPanel> panelMap;
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
     public static boolean devmode = false;
+
+    private boolean showLineNumbers = true;
+    private Font notesFont = new Font( "Arial", Font.PLAIN, 12 );
+    private int toolbarLocation = TOOLBARLOCATION_BOTTOM; 
+
+    public static final int TOOLBARLOCATION_BOTTOM = 0;
+    public static final int TOOLBARLOCATION_TOP = 1;
 
     /**
      * Do not instantiate QuickNotesManager.
      */
     private QuickNotesManager() {
-        panelMap = new HashMap();
+        panelMap = new HashMap<String, QuickNotesPanel>();
     }
 
     /**
@@ -66,26 +74,25 @@ public class QuickNotesManager {
      *
      */
     public void setNoteEditWarning() {
-        HashMap map = new HashMap();
-        for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
-            QuickNotesPanel panel = ( QuickNotesPanel ) panelMap.get( iterator.next() );
+        HashMap<String, ArrayList<QuickNotesPanel>> map = new HashMap<String, ArrayList<QuickNotesPanel>>();
+        for ( Object o : panelMap.keySet() ) {
+            QuickNotesPanel panel = panelMap.get( o );
             String index = String.valueOf( panel.getSelectedNoteIndex() );
             if ( !map.containsKey( index ) ) {
-                map.put( index, new ArrayList() );
+                map.put( index, new ArrayList<QuickNotesPanel>() );
             }
-            ( ( List ) map.get( index ) ).add( panel );
+            ( map.get( index ) ).add( panel );
         }
 
-        for ( Iterator iterator = map.keySet().iterator(); iterator.hasNext(); ) {
-            String key = ( String ) iterator.next();
-            List list = ( List ) map.get( key );
+        for ( String key : map.keySet() ) {
+            List<QuickNotesPanel> list = map.get( key );
             if ( list.size() > 1 ) {
-                for ( Iterator it = list.iterator(); it.hasNext(); ) {
-                    ( ( QuickNotesPanel ) it.next() ).setWarning( true );
+                for ( QuickNotesPanel aList : list ) {
+                    ( aList ).setWarning( true );
                 }
             }
             else if ( list.size() == 1 ) {
-                ( ( QuickNotesPanel ) list.get( 0 ) ).setWarning( false );
+                ( list.get( 0 ) ).setWarning( false );
             }
         }
         map.clear();
@@ -96,10 +103,9 @@ public class QuickNotesManager {
      */
     public void syncQuickNotePanels( String panelid ) {
         if ( panelid != null ) {
-            for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
-                String id = ( String ) iterator.next();
+            for ( String id : panelMap.keySet() ) {
                 if ( id != null && !panelid.equals( id ) ) {
-                    QuickNotesPanel qnp = ( QuickNotesPanel ) panelMap.get( id );
+                    QuickNotesPanel qnp = panelMap.get( id );
                     int index = qnp.getSelectedNoteIndex();
                     if ( index == qnp.element.getChildren().size() ) {
                         index--;
@@ -170,6 +176,14 @@ public class QuickNotesManager {
         File settingsFile = getSettingsFile();
         if ( settingsFile != null ) {
             try {
+                QuickNotesManager mgr = QuickNotesManager.getInstance();
+                element.setAttribute( "showlinenumbers", mgr.isShowLineNumbers() ? "Y" : "N" );
+                element.setAttribute( "toolbarlocation", String.valueOf( mgr.getToolbarLocation() ) );
+
+                Font font = mgr.getNotesFont();
+                element.setAttribute( "fontname", font.getFontName() );
+                element.setAttribute( "fontsize", String.valueOf( font.getSize() ) );
+
                 FileOutputStream fos = new FileOutputStream( settingsFile );
                 outputter.setFormat( Format.getPrettyFormat() ); // make it Pretty!!!
                 outputter.output( element, fos );
@@ -187,15 +201,57 @@ public class QuickNotesManager {
      * @param panelid
      */
     public void syncNoteText( String panelid ) {
-        QuickNotesPanel panel = ( QuickNotesPanel ) panelMap.get( panelid );
-        for ( Iterator iterator = panelMap.keySet().iterator(); iterator.hasNext(); ) {
-            String id = ( String ) iterator.next();
+        QuickNotesPanel panel = panelMap.get( panelid );
+        for ( Object o : panelMap.keySet() ) {
+            String id = ( String ) o;
             if ( id != null && !panelid.equals( id ) ) {
-                QuickNotesPanel qnp = ( QuickNotesPanel ) panelMap.get( id );
+                QuickNotesPanel qnp = panelMap.get( id );
                 if ( qnp.getSelectedNoteIndex() == panel.getSelectedNoteIndex() ) {
                     qnp.setText( panel.getText() );
                 }
             }
         }
+    }
+
+    public boolean isShowLineNumbers() {
+        return showLineNumbers;
+    }
+
+    public void setShowLineNumbers( boolean showLineNumbers ) {
+        this.showLineNumbers = showLineNumbers;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.getTextArea().repaint();
+            }
+        }
+    }
+
+    public Font getNotesFont() {
+        return notesFont;
+    }
+
+    public void setNotesFont( Font notesFont ) {
+        this.notesFont = notesFont;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.setNotesFont( notesFont );
+            }
+        }
+    }
+
+    public void setToolBarLocation( int location ) {
+        toolbarLocation = location;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.setToolbarLocation( location );
+            }
+        }
+    }
+
+    public int getToolbarLocation() {
+        return toolbarLocation;
     }
 }

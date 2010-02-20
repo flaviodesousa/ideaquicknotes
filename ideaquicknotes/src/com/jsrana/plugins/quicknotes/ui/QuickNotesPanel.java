@@ -17,6 +17,7 @@ package com.jsrana.plugins.quicknotes.ui;
 
 import com.jsrana.plugins.quicknotes.manager.QuickNotesManager;
 import com.jsrana.plugins.quicknotes.renderer.NoteListRenderer;
+import com.jsrana.plugins.quicknotes.util.Utils;
 import org.jdom.Element;
 
 import javax.swing.*;
@@ -24,15 +25,16 @@ import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
@@ -57,25 +59,15 @@ public class QuickNotesPanel {
     private JButton buttonTrash;
     private JButton buttonSave;
     private JToggleButton buttonList;
-    private JToggleButton buttonLine;
+    private JButton buttonOptions;
     private JButton buttonRename;
+    private JPanel topToolbarPanel;
+    private JPanel bottomToolbarPanel;
+    private JToolBar toolbar;
     public Element element;
     private int selectedIndex;
     private Element selectedNote;
     private QuickNotesManager quickNotesManager;
-    private boolean showLineNumbers = true;
-
-    private final ImageIcon icon_note = new ImageIcon( getClass().getClassLoader().getResource( "resources/quicknotes32.png" ) );
-    private final ImageIcon icon_list = new ImageIcon( getClass().getClassLoader().getResource( "resources/list.png" ) );
-    private final ImageIcon icon_list16 = new ImageIcon( getClass().getClassLoader().getResource( "resources/list_16.png" ) );
-    private final ImageIcon icon_list16_selected = new ImageIcon( getClass().getClassLoader().getResource( "resources/list_16_selected.png" ) );
-    private final ImageIcon icon_forward = new ImageIcon( getClass().getClassLoader().getResource( "resources/forward.png" ) );
-    private final ImageIcon icon_back = new ImageIcon( getClass().getClassLoader().getResource( "resources/back.png" ) );
-    private final ImageIcon icon_cut = new ImageIcon( getClass().getClassLoader().getResource( "resources/editcut.png" ) );
-    private final ImageIcon icon_copy = new ImageIcon( getClass().getClassLoader().getResource( "resources/editcopy.png" ) );
-    private final ImageIcon icon_paste = new ImageIcon( getClass().getClassLoader().getResource( "resources/editpaste.png" ) );
-    private final ImageIcon icon_delete = new ImageIcon( getClass().getClassLoader().getResource( "resources/editdelete.png" ) );
-    private final ImageIcon icon_warning = new ImageIcon( getClass().getClassLoader().getResource( "resources/warning.png" ) );
 
     private static final Color EDITOR_COLOR_BACKGROUND = new Color( 254, 252, 178 );
     private static final Color EDITOR_COLOR_LINE = new Color( 234, 233, 164 );
@@ -84,6 +76,7 @@ public class QuickNotesPanel {
     private static final Insets EDITOR_INSET_LINENUMBER = new Insets( 0, 35, 0, 0 );
     private static final Insets EDITOR_INSET_LINENUMBER_1000 = new Insets( 0, 38, 0, 0 );
     public static SimpleDateFormat sdf = new SimpleDateFormat( "EEE, d MMM yyyy h:mm a" );
+    public static SimpleDateFormat titleFormat = new SimpleDateFormat( "MMM d, yyyy h:mm a" );
 
     /**
      * @param element
@@ -140,7 +133,7 @@ public class QuickNotesPanel {
         buttonList.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
         buttonList.addActionListener( new AbstractAction() {
             public void actionPerformed( ActionEvent e ) {
-                if ( buttonList.getIcon() == icon_list16_selected ) {
+                if ( buttonList.getIcon() == Utils.ICON_LIST16_SELECTED ) {
                     selectNote( getSelectedNoteIndex(), true );
                 }
                 else {
@@ -149,12 +142,13 @@ public class QuickNotesPanel {
             }
         } );
 
-        buttonLine.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
-        buttonLine.addActionListener( new AbstractAction() {
+        buttonOptions.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        buttonOptions.addActionListener( new AbstractAction() {
             public void actionPerformed( ActionEvent e ) {
-                showLineNumbers = buttonLine.isSelected();
-                pane.repaint();
-                element.setAttribute( "showlinenumbers", showLineNumbers ? "Y" : "N" );
+                OptionsDialog dialog = new OptionsDialog();
+                dialog.setLocationRelativeTo( null );
+                dialog.pack();
+                dialog.setVisible( true );
             }
         } );
 
@@ -178,13 +172,12 @@ public class QuickNotesPanel {
         createPopupMenu();
 
         try {
-            showLineNumbers = !"N".equals( element.getAttributeValue( "showlinenumbers" ) );
+            quickNotesManager.setShowLineNumbers( !"N".equals( element.getAttributeValue( "showlinenumbers" ) ) );
         }
         catch ( NumberFormatException e ) {
-            showLineNumbers = true;
+            quickNotesManager.setShowLineNumbers( true );
         }
-        buttonLine.setSelected( showLineNumbers );
-        pane.setMargin( showLineNumbers ? EDITOR_INSET_LINENUMBER : EDITOR_INSET );
+        pane.setMargin( quickNotesManager.isShowLineNumbers() ? EDITOR_INSET_LINENUMBER : EDITOR_INSET );
 
         selectedIndex = 0;
         try {
@@ -196,6 +189,34 @@ public class QuickNotesPanel {
 
         quickNotesManager.addQuickNotesPanel( this );
         selectNote( selectedIndex, true );
+        pane.setFont( quickNotesManager.getNotesFont() );
+
+        topToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ));
+        bottomToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ));
+        setToolbarLocation( quickNotesManager.getToolbarLocation() );
+
+        toolbar.setMargin( new Insets( 0, 0, 0, 0 ) );
+    }
+
+    public void setToolbarLocation( int location ) {
+        bottomToolbarPanel.removeAll();
+        topToolbarPanel.removeAll();
+        topToolbarPanel.setVisible( false );
+        bottomToolbarPanel.setVisible( false );
+
+        if ( location == QuickNotesManager.TOOLBARLOCATION_BOTTOM ) {
+            bottomToolbarPanel.setLayout( new BorderLayout() );
+            bottomToolbarPanel.add( "Center", toolbar );
+            bottomToolbarPanel.setVisible( true );
+        }
+        else {
+            topToolbarPanel.setLayout( new BorderLayout() );
+            topToolbarPanel.add( "Center", toolbar );
+            topToolbarPanel.setVisible( true );
+        }
+
+        bottomToolbarPanel.repaint();
+        topToolbarPanel.repaint();
     }
 
     /**
@@ -274,14 +295,16 @@ public class QuickNotesPanel {
      *
      * @param index Index of the Note in Note collection
      */
-    public void selectNote( int index, boolean requestFocus ) {
+    public void selectNote( int index,
+                            boolean requestFocus ) {
         if ( pane.getParent() == null ) {
             buttonRename.setVisible( true );
             buttonAdd.setEnabled( true );
             buttonSave.setEnabled( true );
-            logo.setIcon( icon_note );
-            buttonList.setIcon( icon_list16 );
+            logo.setIcon( Utils.ICON_NOTE );
+            buttonList.setIcon( Utils.ICON_LIST16 );
             noteScroller.getViewport().add( pane );
+            buttonOptions.setEnabled( true );
         }
 
         if ( index >= 0 && index < element.getChildren().size() ) {
@@ -289,7 +312,16 @@ public class QuickNotesPanel {
             selectedNote = ( Element ) element.getChildren().get( index );
             pane.setText( selectedNote.getText() );
             notestitle.setText( selectedNote.getAttributeValue( "title" ) );
-            addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
+
+            try {
+                Date createdt = sdf.parse( selectedNote.getAttributeValue( "createdt" ) );
+                Date today = new Date();
+                long days = ( today.getTime() - createdt.getTime() ) / ( 60 * 60 * 24 * 1000 );
+                addedon.setText( "(Added " + days + " days ago on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
+            }
+            catch ( ParseException e ) {
+                addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
+            }
             indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
             buttonBack.setEnabled( index > 0 );
             buttonNext.setEnabled( hasMoreNotes() );
@@ -299,6 +331,7 @@ public class QuickNotesPanel {
             }
         }
         buttonList.setSelected( false );
+        pane.setFont( quickNotesManager.getNotesFont() );
         quickNotesManager.setNoteEditWarning();
     }
 
@@ -336,8 +369,8 @@ public class QuickNotesPanel {
                 StringBuffer sb = new StringBuffer();
                 FileWriter fileWriter = new FileWriter( file );
                 java.util.List list = element.getChildren();
-                for ( int i = 0; i < list.size(); i++ ) {
-                    Element e = ( Element ) list.get( i );
+                for ( Object aList : list ) {
+                    Element e = ( Element ) aList;
                     sb.append( e.getAttributeValue( "title" ) );
                     sb.append( " (Added on " ).append( e.getAttributeValue( "createdt" ) ).append( ")" );
                     sb.append( "\n-------------------------------------------------------------------\n" );
@@ -404,9 +437,10 @@ public class QuickNotesPanel {
         buttonTrash.setEnabled( false );
         buttonAdd.setEnabled( false );
         buttonSave.setEnabled( false );
-        buttonList.setIcon( icon_list16_selected );
+        buttonOptions.setEnabled( false );
+        buttonList.setIcon( Utils.ICON_LIST16_SELECTED );
         buttonRename.setVisible( false );
-        logo.setIcon( icon_list );
+        logo.setIcon( Utils.ICON_LIST );
     }
 
     /**
@@ -416,7 +450,7 @@ public class QuickNotesPanel {
      */
     public static Element addNewNote() {
         Element note = new Element( "note" );
-        note.setAttribute( "title", "New Note" );
+        note.setAttribute( "title", titleFormat.format( new Date() ) );
         note.setAttribute( "createdt", sdf.format( new Date() ) );
         note.setText( "Enter your notes here..." );
         return note;
@@ -449,7 +483,7 @@ public class QuickNotesPanel {
                     yend = 2048;
                 }
                 while ( y < yend ) {
-                    if ( showLineNumbers && startLineNumber <= getLineCount() ) {
+                    if ( quickNotesManager.isShowLineNumbers() && startLineNumber <= getLineCount() ) {
                         g.setColor( EDITOR_COLOR_LINENUMBER );
                         g.drawString( startLineNumber++ + ".", 2, y );
                     }
@@ -458,7 +492,7 @@ public class QuickNotesPanel {
                     y += fontHeignt;
                 }
                 g.setColor( EDITOR_COLOR_LINENUMBER );
-                if ( showLineNumbers ) {
+                if ( quickNotesManager.isShowLineNumbers() ) {
                     if ( getLineCount() < 1000 ) {
                         g.drawLine( 30, 0, 30, getHeight() );
                         g.drawLine( 32, 0, 32, getHeight() );
@@ -519,7 +553,7 @@ public class QuickNotesPanel {
 
         JMenuItem cut = new JMenuItem( new DefaultEditorKit.CutAction() );
         cut.setText( "Cut" );
-        cut.setIcon( icon_cut );
+        cut.setIcon( Utils.ICON_CUT );
         cut.addMouseListener( new MouseAdapter() {
             public void mouseReleased( MouseEvent e ) {
                 getSelectedNote().setText( pane.getText() );
@@ -529,11 +563,11 @@ public class QuickNotesPanel {
 
         JMenuItem copy = new JMenuItem( new DefaultEditorKit.CopyAction() );
         copy.setText( "Copy" );
-        copy.setIcon( icon_copy );
+        copy.setIcon( Utils.ICON_COPY );
 
         JMenuItem paste = new JMenuItem( new DefaultEditorKit.PasteAction() );
         paste.setText( "Paste" );
-        paste.setIcon( icon_paste );
+        paste.setIcon( Utils.ICON_PASTE );
         paste.addMouseListener( new MouseAdapter() {
             public void mouseReleased( MouseEvent e ) {
                 getSelectedNote().setText( pane.getText() );
@@ -541,28 +575,28 @@ public class QuickNotesPanel {
             }
         } );
 
-        JMenuItem popupNext = new JMenuItem( "Next Note", icon_forward );
+        JMenuItem popupNext = new JMenuItem( "Next Note", Utils.ICON_FORWARD );
         popupNext.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
                 goNext();
             }
         } );
 
-        JMenuItem popupBack = new JMenuItem( "Previous Note", icon_back );
+        JMenuItem popupBack = new JMenuItem( "Previous Note", Utils.ICON_BACK );
         popupBack.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
                 goBack();
             }
         } );
 
-        JMenuItem popupList = new JMenuItem( "List All Notes", icon_list16 );
+        JMenuItem popupList = new JMenuItem( "List All Notes", Utils.ICON_LIST16 );
         popupList.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
                 listAllNotes();
             }
         } );
 
-        JMenuItem delete = new JMenuItem( "Delete Note", icon_delete );
+        JMenuItem delete = new JMenuItem( "Delete Note", Utils.ICON_DELETE );
         delete.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
                 deleteNote();
@@ -585,7 +619,7 @@ public class QuickNotesPanel {
      */
     public void setWarning( boolean warning ) {
         if ( warning ) {
-            notestitle.setIcon( icon_warning );
+            notestitle.setIcon( Utils.ICON_WARNING );
             notestitle.setToolTipText( "This Note is also being edited in another IDEA instance" );
         }
         else {
@@ -606,6 +640,14 @@ public class QuickNotesPanel {
      */
     public void setText( String text ) {
         pane.setText( text );
+    }
+
+    public void setNotesFont( Font notesFont ) {
+        pane.setFont( notesFont );
+    }
+
+    public JTextArea getTextArea() {
+        return pane;
     }
 }
 
