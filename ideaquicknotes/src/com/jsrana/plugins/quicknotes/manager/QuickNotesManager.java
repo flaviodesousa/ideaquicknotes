@@ -20,7 +20,6 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,7 +41,7 @@ public class QuickNotesManager {
 
     private boolean showLineNumbers = true;
     private Font notesFont = new Font( "Arial", Font.PLAIN, 12 );
-    private int toolbarLocation = TOOLBARLOCATION_BOTTOM; 
+    private int toolbarLocation = TOOLBARLOCATION_BOTTOM;
 
     public static final int TOOLBARLOCATION_BOTTOM = 0;
     public static final int TOOLBARLOCATION_TOP = 1;
