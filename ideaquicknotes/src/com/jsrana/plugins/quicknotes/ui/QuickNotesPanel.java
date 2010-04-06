@@ -16,11 +16,12 @@
 package com.jsrana.plugins.quicknotes.ui;
 
 import com.jsrana.plugins.quicknotes.manager.QuickNotesManager;
-import com.jsrana.plugins.quicknotes.renderer.NoteListRenderer;
 import com.jsrana.plugins.quicknotes.util.Utils;
 import org.jdom.Element;
 
 import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,7 +38,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Vector;
 
 /**
  * Quick Notes Panel
@@ -64,6 +64,10 @@ public class QuickNotesPanel {
     private JPanel topToolbarPanel;
     private JPanel bottomToolbarPanel;
     private JToolBar toolbar;
+    private JToggleButton buttonSearch;
+    private JPanel searchPanel;
+    private JTextField searchField;
+    private JButton buttonHideSearch;
     public Element element;
     private int selectedIndex;
     private Element selectedNote;
@@ -78,7 +82,11 @@ public class QuickNotesPanel {
     public static SimpleDateFormat sdf = new SimpleDateFormat( "EEE, d MMM yyyy h:mm a" );
     public static SimpleDateFormat titleFormat = new SimpleDateFormat( "MMM d, yyyy h:mm a" );
 
+    JEditorPane searchPane;
+
     /**
+     * Constructor
+     *
      * @param element
      */
     public QuickNotesPanel( final Element element ) {
@@ -191,13 +199,41 @@ public class QuickNotesPanel {
         selectNote( selectedIndex, true );
         pane.setFont( quickNotesManager.getNotesFont() );
 
-        topToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ));
-        bottomToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ));
+        topToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
+        bottomToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
         setToolbarLocation( quickNotesManager.getToolbarLocation() );
 
         toolbar.setMargin( new Insets( 0, 0, 0, 0 ) );
+
+        searchPanel.setVisible( false );
+        buttonSearch.addActionListener( new AbstractAction() {
+            public void actionPerformed( ActionEvent e ) {
+                if ( buttonSearch.isSelected() ) {
+                    showSearch();
+                }
+                else {
+                    hideSearch();
+                }
+            }
+        } );
+        buttonHideSearch.addActionListener( new AbstractAction() {
+            public void actionPerformed( ActionEvent e ) {
+                hideSearch();
+            }
+        } );
+        searchField.addKeyListener( new KeyAdapter() {
+            public void keyReleased( KeyEvent e ) {
+                handleSearch( e.getKeyCode() );
+            }
+        } );
     }
 
+    /**
+     * Sets the location of toolbar. Possible options are
+     * QuickNotesManager.TOOLBARLOCATION_BOTTOM or QuickNotesManager.TOOLBARLOCATION_TOP
+     *
+     * @param location
+     */
     public void setToolbarLocation( int location ) {
         bottomToolbarPanel.removeAll();
         topToolbarPanel.removeAll();
@@ -291,20 +327,23 @@ public class QuickNotesPanel {
     }
 
     /**
-     * Selects a note
+     * Selects a Note
      *
-     * @param index Index of the Note in Note collection
+     * @param index - index of the note to select
+     * @param requestFocus - whether to bring selected note in focus or not 
      */
     public void selectNote( int index,
                             boolean requestFocus ) {
+        // if pane has no parent then add the pane back to scroller and reset button statuses
         if ( pane.getParent() == null ) {
+            buttonList.setEnabled( true );
             buttonRename.setVisible( true );
             buttonAdd.setEnabled( true );
             buttonSave.setEnabled( true );
-            logo.setIcon( Utils.ICON_NOTE );
             buttonList.setIcon( Utils.ICON_LIST16 );
-            noteScroller.getViewport().add( pane );
             buttonOptions.setEnabled( true );
+            logo.setIcon( Utils.ICON_NOTE );
+            noteScroller.getViewport().add( pane );
         }
 
         if ( index >= 0 && index < element.getChildren().size() ) {
@@ -322,7 +361,7 @@ public class QuickNotesPanel {
             catch ( ParseException e ) {
                 addedon.setText( "(Added on " + selectedNote.getAttributeValue( "createdt" ) + ")" );
             }
-            indexLabel.setText( ( index + 1 ) + " of " + element.getChildren().size() );
+            indexLabel.setText( ( index + 1 ) + " / " + element.getChildren().size() );
             buttonBack.setEnabled( index > 0 );
             buttonNext.setEnabled( hasMoreNotes() );
             buttonTrash.setEnabled( element.getChildren().size() > 1 );
@@ -330,6 +369,7 @@ public class QuickNotesPanel {
                 pane.requestFocus();
             }
         }
+
         buttonList.setSelected( false );
         pane.setFont( quickNotesManager.getNotesFont() );
         quickNotesManager.setNoteEditWarning();
@@ -407,31 +447,53 @@ public class QuickNotesPanel {
      * Lists all notes
      */
     private void listAllNotes() {
-        java.util.List list = element.getChildren();
-        Vector<Object> o = new Vector<Object>();
-        int i = 0;
-        while ( i < list.size() ) {
-            o.add( list.get( i ) );
-            i++;
+        if ( searchPane == null ) {
+            searchPane = new JEditorPane();
+            searchPane.setEditable( false );
+            searchPane.setContentType( "text/html" );
+            searchPane.setMargin( new Insets( 0, 0, 0, 0 ) );
+            searchPane.setBackground( new Color( 233, 248, 248 ) );
+            searchPane.addHyperlinkListener( new HyperlinkListener() {
+                public void hyperlinkUpdate( HyperlinkEvent e ) {
+                    if ( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
+                        setSelectedNoteIndex( Integer.parseInt( e.getURL().getHost() ) );
+                        hideSearch();
+                    }
+                }
+            } );
         }
-        final JList sList = new JList( o );
-        sList.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
-        sList.setCellRenderer( new NoteListRenderer() );
-        sList.addMouseMotionListener( new MouseAdapter() {
-            @Override public void mouseMoved( MouseEvent e ) {
-                sList.setSelectedIndex( sList.locationToIndex( e.getPoint() ) );
+        if ( searchPane.getParent() == null ) {
+            noteScroller.getViewport().add( searchPane );
+        }
+
+        boolean even = true;
+        StringBuilder sb = new StringBuilder();
+        sb.append( "<html><body style='margin:0'>" );
+        java.util.List list = element.getChildren();
+        for ( int i = 0; i < list.size(); i++ ) {
+            Element e = ( Element ) list.get( i );
+            String txt = e.getText();
+            int end = 50;
+            if ( txt.length() < end ) {
+                end = txt.length();
             }
-        } );
-        sList.addMouseListener( new MouseAdapter() {
-            @Override public void mouseClicked( MouseEvent e ) {
-                int index = sList.locationToIndex( e.getPoint() );
-                selectNote( index, true );
-            }
-        } );
-        noteScroller.getViewport().add( sList );
+            txt = txt.substring( 0, end );
+            txt = txt.replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" ).replaceAll( "\n", "<br>" );
+
+            sb.append( "<div style='background:" ).append( even ? "#e9f8f8" : "#d1f0f0" ).append( ";padding:3px'>" );
+            sb.append( "<div style='font:bold 10px sans-serif'>" );
+            sb.append( ( i + 1 ) ).append( ".&nbsp;" );
+            sb.append( "<a href='http://" ).append( i ).append( "'>" );
+            sb.append( e.getAttributeValue( "title" ) ).append( "</a></div>" );
+            sb.append( "<table><tr><td style='font:normal 9px verdana;color:gray;padding-left:10px'>" ).append( txt ).append( "</td></tr></table>" );
+            sb.append( "</div>" );
+            even = !even;
+        }
+        sb.append( "</body></html>" );
+        searchPane.setText( sb.toString() );
 
         notestitle.setText( "List of all Notes" );
-        addedon.setText( "(Click on a Note to select it)" );
+        addedon.setText( "(Click on a Note title to select it)" );
         buttonBack.setEnabled( false );
         buttonNext.setEnabled( false );
         buttonTrash.setEnabled( false );
@@ -441,6 +503,112 @@ public class QuickNotesPanel {
         buttonList.setIcon( Utils.ICON_LIST16_SELECTED );
         buttonRename.setVisible( false );
         logo.setIcon( Utils.ICON_LIST );
+    }
+
+    /**
+     * Shows the search bar to search for a text in Notes
+     */
+    private void showSearch() {
+        searchPanel.setVisible( true );
+        searchField.requestFocus();
+        buttonBack.setEnabled( false );
+        buttonNext.setEnabled( false );
+        buttonTrash.setEnabled( false );
+        buttonAdd.setEnabled( false );
+        buttonSave.setEnabled( false );
+        buttonOptions.setEnabled( false );
+        buttonList.setEnabled( false );
+        buttonRename.setVisible( false );
+    }
+
+    /**
+     * Hides the search bar and resets the button status
+     */
+    private void hideSearch() {
+        searchField.setText( "" );
+        searchPanel.setVisible( false );
+        buttonSearch.setSelected( false );
+        buttonBack.setEnabled( true );
+        buttonNext.setEnabled( true );
+        buttonTrash.setEnabled( true );
+        buttonAdd.setEnabled( true );
+        buttonSave.setEnabled( true );
+        buttonOptions.setEnabled( true );
+        buttonList.setEnabled( true );
+        buttonRename.setVisible( true );
+        selectNote( selectedIndex, true );
+    }
+
+    /**
+     * Handles searching
+     *
+     * @param keyCode
+     */
+    private void handleSearch( int keyCode ) {
+        if ( keyCode == KeyEvent.VK_ESCAPE ) {
+            // hide if user hits Escape
+            hideSearch();
+        }
+        else {
+            String str = searchField.getText().trim();
+            if ( str.length() > 0 ) {
+                if ( searchPane == null ) {
+                    searchPane = new JEditorPane();
+                    searchPane.setEditable( false );
+                    searchPane.setContentType( "text/html" );
+                    searchPane.setMargin( new Insets( 0, 0, 0, 0 ) );
+                    searchPane.setBackground( new Color( 233, 248, 248 ) );
+                    searchPane.addHyperlinkListener( new HyperlinkListener() {
+                        public void hyperlinkUpdate( HyperlinkEvent e ) {
+                            if ( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
+                                setSelectedNoteIndex( Integer.parseInt( e.getURL().getHost() ) );
+                                hideSearch();
+                            }
+                        }
+                    } );
+                }
+                if ( searchPane.getParent() == null ) {
+                    noteScroller.getViewport().add( searchPane );
+                }
+
+                boolean even = true;
+                int count = 0;
+                StringBuilder sb = new StringBuilder();
+                sb.append( "<html><body style='margin:0'>" );
+                java.util.List list = element.getChildren();
+                for ( int i = 0; i < list.size(); i++ ) {
+                    Element e = ( Element ) list.get( i );
+                    String txt = e.getText();
+                    int index = txt.indexOf( str );
+                    if ( index != -1 ) {
+                        count++;
+                        int start = index - 20;
+                        if ( start < 0 ) {
+                            start = 0;
+                        }
+                        int end = index + 20;
+                        if ( end > txt.length() ) {
+                            end = txt.length();
+                        }
+                        txt = txt.substring( start, end ).replaceAll( "<", "&lt;" ).replaceAll( ">", "&gt;" );
+                        txt = txt.replaceAll( str, "<b><font color=black>" + str + "</font></b>" ).replaceAll( "\n", "<br>" );
+
+                        sb.append( "<div style='background:" ).append( even ? "#e9f8f8" : "#d1f0f0" ).append( ";padding:3px'>" );
+                        sb.append( "<div style='font:bold 10px sans-serif'>" );
+                        sb.append( "<a href='http://" ).append( i ).append( "'>" );
+                        sb.append( e.getAttributeValue( "title" ) ).append( "</a></div>" );
+                        sb.append( "<table><tr><td style='font:normal 9px verdana;color:gray;padding-left:10px'>" ).append( txt ).append( "</td></tr></table>" );
+                        sb.append( "</div>" );
+                        even = !even;
+                    }
+                }
+                sb.append( "</body></html>" );
+                searchPane.setText( count > 0 ? sb.toString() : "<div style='font:normal 10px sans-serif;padding:5px'>No matching notes found...</div>" );
+            }
+            else {
+                searchPane.setText( "<div style='font:normal 10px sans-serif;padding:5px'>Please enter a text to search...</div>" );
+            }
+        }
     }
 
     /**
@@ -551,6 +719,13 @@ public class QuickNotesPanel {
     public void createPopupMenu() {
         JPopupMenu popupMenu = new JPopupMenu();
 
+        JMenuItem search = new JMenuItem( "Search", Utils.ICON_SEARCH );
+        search.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                showSearch();
+            }
+        } );
+
         JMenuItem cut = new JMenuItem( new DefaultEditorKit.CutAction() );
         cut.setText( "Cut" );
         cut.setIcon( Utils.ICON_CUT );
@@ -602,6 +777,9 @@ public class QuickNotesPanel {
                 deleteNote();
             }
         } );
+
+        popupMenu.add( search );
+        popupMenu.addSeparator();
         popupMenu.add( cut );
         popupMenu.add( copy );
         popupMenu.add( paste );

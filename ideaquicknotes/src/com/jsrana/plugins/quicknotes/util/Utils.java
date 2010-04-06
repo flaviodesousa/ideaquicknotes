@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Jitendra Rana, jsrana@gmail.com
+ * Copyright 2010 Jitendra Rana, jsrana@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,11 @@ import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 
+/**
+ * Utils class contains utility methods
+ *
+ * @author Jitendra Rana
+ */
 public class Utils {
     public final static String jpeg = "jpeg";
     public final static String jpg = "jpg";
@@ -41,6 +46,7 @@ public class Utils {
     public final static ImageIcon ICON_EXEC = createImageIcon( "exec.png" );
     public final static ImageIcon ICON_ON = createImageIcon( "on.png" );
     public final static ImageIcon ICON_OFF = createImageIcon( "off.png" );
+    public final static ImageIcon ICON_SEARCH = createImageIcon( "search.png" );
 
     static final String[] browsers = {"google-chrome", "firefox", "opera",
                                       "konqueror", "epiphany", "seamonkey", "galeon", "kazehakase", "mozilla"};
