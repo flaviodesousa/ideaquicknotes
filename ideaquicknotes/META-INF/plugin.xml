@@ -2,49 +2,31 @@
 <idea-plugin url="http://www.jsrana.com/home/idea/quicknotes">
     <name>Quick Notes</name>
     <description><![CDATA[
-    Quick Notes plugin provides ability to quickly save notes within IDEA. This plugin allows managing multiple notes.
-    Please save your existing notes before upgrading (just in case).
+    Quick Notes is a plugin written for IntelliJ IDEA. This plugin adds the ability to manage multiple text notes
+    within the IDEA itself. These could be some tips, notes, code snippets, etc that usually comes to mind while
+    coding and Quick Notes provides an ideal way to save those thoughts quickly and easily.
+    <p>Quick Notes is compatible with multiple opened IDEA instances, so any change made to any note in one instance
+    of IDEA gets reflected in the other IDEA instances without any delay.
+
+    <p><b>Features</b>
+    <br>Quick Notes plugin provides many features aimed towards easy maintenance and quick access to the Notes.
+    Here are some of the major features of this plugin
+    <ul>
+    <li>Add and Manage multiple notes</li>
+    <li>Rename an existing note</li>
+    <li>Delete an existing note</li>
+    <li>Manage notes across multiple IDEA instances</li>
+    <li>Any change in one IDEA instance gets reflected across other IDEA instances</li>
+    <li>Notes are saved in user's home folder "userhome.ideaquicknotes"</li>
+    <li>Show or hide line numbers</li>
+    <li>The toolbar can be placed at top or bottom location</li>
+    <li>Ability to change Font of notes</li>
+    <li>Ability to search notes</li>
+    <li>Ability to save notes to a file</li>
+    </ul>
+    <br><a href='http://docs.google.com/fileview?id=0B6GyR43t58eXMjIwMjgyYWMtNjFkZS00MDg1LTgxYWQtNDgwMTViYjM4ZDE0&hl=en' target='_blank'>Click here</a> to read/download the manual for this plugin.
     <br><br>For any bugs or suggestions, please leave a comment on the plugin page at
     <br><a href='http://plugins.intellij.net/plugin/?id=4456' target='_blank'>http://plugins.intellij.net/plugin/?id=4456</a>
-    <p><b><u>Change Log</u></b>
-    <p><b>Version 2.7</b>
-    <ul>
-    <li>Added capability to search in Notes</li>
-    </ul>
-    <p><b>Version 2.6</b>
-    <ul>
-    <li>Compiled with JDK 5</li>
-    <li>New note's title is now set to current date and time</li>
-    <li>New ability to change the font and font size</li>
-    <li>New ability to place toolbar at top or bottom position</li>
-    <li>Added options dialog to manage various settings</li>
-    </ul>
-    <p><b>Version 2.5.1</b>
-    <ul>
-    <li>Fixed a bug with focusing of Note in multiple IDEA instances</li>
-    </ul>
-    <p><b>Version 2.5</b>
-    <ul>
-    <li>Note is no more locked when opened in multiple IDEA instances. Just a warning is shown.</li>
-    <li>Note is kept in sync in real time when opened in multiple IDEA instances.</li>
-    <li>All opened IDEA instances are now kept in sync when a Note is Added, Deleted or Renamed.</li>
-    </ul>
-    <p><b>Version 2.4</b>
-    <ul>
-    <li>Bug fix for Line number alignment (thanks WarnerJan)</li>
-    <li>Added popup menu to editor</li>
-    </ul>
-    <p><b>Version 2.3</b>
-    <br>The data is now saved in a file under user's home directory under folder ".ideaquicknote"
-    and if for some reason the saving of data fails then data is saved in the plugin's internal storage.
-    QuickNotes is now also compatible with multiple IDEA instances. Please save your existing notes before
-    upgrading to this version (just in case).
-    <ul>
-    <li>Data is now saved in user's home directory</li>
-    <li>Shows line numbers with an ability to hide it</li>
-    <li>Compatible with multiple IDEA instances</li>
-    <li>Minor UI tweaks</li>
-    </ul>
     ]]></description>
     <version>2.6</version>
     <change-notes>
