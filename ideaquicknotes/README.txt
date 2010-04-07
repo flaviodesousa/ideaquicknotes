@@ -15,6 +15,6 @@ The plugin is distributed under Apache open source license.
 Links
 Project Website			        http://www.jsrana.com/home/idea/quicknotes
 Plugin’s IDEA website		    http://plugins.intellij.net/plugin/?id=4456
-Plugin’s Google Code Project    	https://code.google.com/p/ideaquicknotes/
+Plugin’s Google Code Project    https://code.google.com/p/ideaquicknotes/
 
-To involve in the future develpment of this plugin, you can download the source from plugin's Google Code website.
+To involve in the future development of this plugin, you can download the source from plugin's Google Code website.
