@@ -23,6 +23,8 @@ public class OptionsDialog
     private JLabel showLineNumberLabel;
     private JButton urlButton;
     private JButton licenseButton;
+    private JLabel labelWebsite;
+    private JLabel labelSource;
 
     protected String fontSizes[] = {"8", "10", "11", "12", "14", "16", "18", "20", "24"};
     private boolean showLineNumber;
@@ -113,6 +115,20 @@ public class OptionsDialog
                 dialog.setVisible( true );
             }
         } );
+
+        labelWebsite.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        labelWebsite.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent e ) {
+                Utils.openURL( "http://www.jsrana.com/home/idea/quicknotes" );
+            }
+        });
+
+        labelSource.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        labelSource.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent e ) {
+                Utils.openURL( "https://code.google.com/p/ideaquicknotes/" );
+            }
+        });
     }
 
     private void onOK() {
