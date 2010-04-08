@@ -25,6 +25,7 @@ public class OptionsDialog
     private JButton licenseButton;
     private JLabel labelWebsite;
     private JLabel labelSource;
+    private JLabel labelManual;
 
     protected String fontSizes[] = {"8", "10", "11", "12", "14", "16", "18", "20", "24"};
     private boolean showLineNumber;
@@ -127,6 +128,13 @@ public class OptionsDialog
         labelSource.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
                 Utils.openURL( "https://code.google.com/p/ideaquicknotes/" );
+            }
+        });
+
+        labelManual.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        labelManual.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent e ) {
+                Utils.openURL( "http://docs.google.com/fileview?id=0B6GyR43t58eXNzQ1ZmUyOTktZDc5NS00ZWRkLTlmMGMtOGQ0ZGIyZjdhM2E0&hl=en" );
             }
         });
     }
