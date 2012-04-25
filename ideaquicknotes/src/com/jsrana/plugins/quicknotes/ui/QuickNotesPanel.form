@@ -156,6 +156,23 @@
                   <toolTipText value="Add New Note"/>
                 </properties>
               </component>
+              <component id="39234" class="javax.swing.JButton" binding="buttonTrash">
+                <constraints/>
+                <properties>
+                  <disabledIcon value="resources/trash_gray.png"/>
+                  <horizontalTextPosition value="0"/>
+                  <icon value="resources/trash.png"/>
+                  <margin top="2" left="2" bottom="2" right="2"/>
+                  <text value=""/>
+                  <toolTipText value="Delete Note"/>
+                </properties>
+              </component>
+              <component id="fce01" class="javax.swing.JToolBar$Separator">
+                <constraints/>
+                <properties>
+                  <separatorSize width="2" height="9"/>
+                </properties>
+              </component>
               <component id="9f546" class="javax.swing.JButton" binding="buttonBack">
                 <constraints/>
                 <properties>
@@ -202,17 +219,6 @@
                   <margin top="2" left="2" bottom="2" right="2"/>
                 </properties>
               </component>
-              <component id="39234" class="javax.swing.JButton" binding="buttonTrash">
-                <constraints/>
-                <properties>
-                  <disabledIcon value="resources/trash_gray.png"/>
-                  <horizontalTextPosition value="0"/>
-                  <icon value="resources/trash.png"/>
-                  <margin top="2" left="2" bottom="2" right="2"/>
-                  <text value=""/>
-                  <toolTipText value="Delete Note"/>
-                </properties>
-              </component>
               <component id="1407" class="javax.swing.JButton" binding="buttonSave">
                 <constraints/>
                 <properties>
@@ -237,7 +243,7 @@
               <component id="40fa1" class="javax.swing.JLabel">
                 <constraints/>
                 <properties>
-                  <text value="Quick Notes v2.7"/>
+                  <text value="Quick Notes v2.8"/>
                 </properties>
               </component>
             </children>

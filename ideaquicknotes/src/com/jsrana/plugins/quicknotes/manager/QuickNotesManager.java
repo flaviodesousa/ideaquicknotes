@@ -40,6 +40,7 @@ public class QuickNotesManager {
     public static boolean devmode = false;
 
     private boolean showLineNumbers = true;
+    private boolean wordWrap = false;
     private Font notesFont = new Font( "Arial", Font.PLAIN, 12 );
     private int toolbarLocation = TOOLBARLOCATION_BOTTOM;
 
@@ -130,6 +131,28 @@ public class QuickNotesManager {
     public void clearLocks( QuickNotesPanel panel ) {
         panelMap.remove( panel.getId() );
         setNoteEditWarning();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isWordWrap() {
+        return wordWrap;
+    }
+
+    /**
+     * 
+     * @param wordWrap
+     */
+    public void setWordWrap( boolean wordWrap ) {
+        this.wordWrap = wordWrap;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.getTextArea().setLineWrap( wordWrap );
+            }
+        }
     }
 
     /**
