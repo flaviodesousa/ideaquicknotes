@@ -26,9 +26,11 @@ public class OptionsDialog
     private JLabel labelWebsite;
     private JLabel labelSource;
     private JLabel labelManual;
+    private JLabel wordWrapLabel;
 
     protected String fontSizes[] = {"8", "10", "11", "12", "14", "16", "18", "20", "24"};
     private boolean showLineNumber;
+    private boolean wordwrap;
 
     public OptionsDialog() {
         super();
@@ -95,9 +97,31 @@ public class OptionsDialog
         showLineNumberLabel.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
         showLineNumberLabel.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
-                showLineNumber = !showLineNumber;
-                manager.setShowLineNumbers( showLineNumber );
-                showLineNumberLabel.setIcon( showLineNumber ? Utils.ICON_ON : Utils.ICON_OFF );
+                if ( !wordwrap ) {
+                    showLineNumber = !showLineNumber;
+                    manager.setShowLineNumbers( showLineNumber );
+                    showLineNumberLabel.setIcon( showLineNumber ? Utils.ICON_ON : Utils.ICON_OFF );
+                }
+            }
+        } );
+
+        wordwrap = manager.isWordWrap();
+        wordWrapLabel.setIcon( wordwrap ? Utils.ICON_ON : Utils.ICON_OFF );
+        wordWrapLabel.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        wordWrapLabel.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent e ) {
+                wordwrap = !wordwrap;
+                manager.setWordWrap( wordwrap );
+                wordWrapLabel.setIcon( wordwrap ? Utils.ICON_ON : Utils.ICON_OFF );
+                if ( wordwrap ) {
+                    showLineNumber = false;
+                    manager.setShowLineNumbers( false );
+                    showLineNumberLabel.setIcon( Utils.ICON_OFF );
+                    showLineNumberLabel.setEnabled( false );
+                }
+                else {
+                    showLineNumberLabel.setEnabled( true );
+                }
             }
         } );
 
@@ -105,7 +129,7 @@ public class OptionsDialog
             public void actionPerformed( ActionEvent e ) {
                 Utils.openURL( "http://plugins.intellij.net/plugin/?id=4456" );
             }
-        });
+        } );
 
         licenseButton.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
         licenseButton.addActionListener( new AbstractAction() {
@@ -122,21 +146,21 @@ public class OptionsDialog
             public void mouseClicked( MouseEvent e ) {
                 Utils.openURL( "http://www.jsrana.com/home/idea/quicknotes" );
             }
-        });
+        } );
 
         labelSource.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
         labelSource.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
                 Utils.openURL( "https://code.google.com/p/ideaquicknotes/" );
             }
-        });
+        } );
 
         labelManual.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
         labelManual.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
                 Utils.openURL( "http://docs.google.com/fileview?id=0B6GyR43t58eXNzQ1ZmUyOTktZDc5NS00ZWRkLTlmMGMtOGQ0ZGIyZjdhM2E0&hl=en" );
             }
-        });
+        } );
     }
 
     private void onOK() {
