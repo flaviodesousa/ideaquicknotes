@@ -151,6 +151,7 @@ public class QuickNotesManager {
             if ( id != null ) {
                 QuickNotesPanel qnp = panelMap.get( id );
                 qnp.getTextArea().setLineWrap( wordWrap );
+                qnp.getTextArea().setWrapStyleWord( wordWrap );
             }
         }
     }
@@ -201,6 +202,7 @@ public class QuickNotesManager {
                 QuickNotesManager mgr = QuickNotesManager.getInstance();
                 element.setAttribute( "showlinenumbers", mgr.isShowLineNumbers() ? "Y" : "N" );
                 element.setAttribute( "toolbarlocation", String.valueOf( mgr.getToolbarLocation() ) );
+                element.setAttribute( "wordwrap", mgr.isWordWrap() ? "Y" : "N" );
 
                 Font font = mgr.getNotesFont();
                 element.setAttribute( "fontname", font.getFontName() );

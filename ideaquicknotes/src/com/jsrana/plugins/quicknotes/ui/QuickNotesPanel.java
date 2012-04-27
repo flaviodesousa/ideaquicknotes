@@ -195,9 +195,12 @@ public class QuickNotesPanel {
             selectedIndex = 0;
         }
 
+        quickNotesManager.setWordWrap( "Y".equals( element.getAttributeValue( "wordwrap" ) ) );
         quickNotesManager.addQuickNotesPanel( this );
         selectNote( selectedIndex, true );
         pane.setFont( quickNotesManager.getNotesFont() );
+        pane.setLineWrap( quickNotesManager.isWordWrap() );
+        pane.setWrapStyleWord( quickNotesManager.isWordWrap() );
 
         topToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
         bottomToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );

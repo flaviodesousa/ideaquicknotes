@@ -31,7 +31,6 @@ import com.intellij.peer.PeerFactory;
 import com.intellij.ui.content.Content;
 import com.jsrana.plugins.quicknotes.manager.QuickNotesManager;
 import com.jsrana.plugins.quicknotes.ui.QuickNotesPanel;
-import static com.jsrana.plugins.quicknotes.ui.QuickNotesPanel.addNewNote;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
@@ -40,13 +39,15 @@ import org.jetbrains.annotations.NotNull;
 import org.xml.sax.InputSource;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.awt.*;
+
+import static com.jsrana.plugins.quicknotes.ui.QuickNotesPanel.addNewNote;
 
 /**
  * Quick Notes is an IntelliJ IDEA Plugin that provides saving notes in IDEA itself
@@ -171,10 +172,12 @@ public class QuickNotes
             element.setAttribute( "toolbarlocation", "0" );
             element.setAttribute( "fontname", "Arial" );
             element.setAttribute( "fontsize", "12" );
+            element.setAttribute( "wordwrap", "N" );
         }
 
         QuickNotesManager mgr = QuickNotesManager.getInstance();
         mgr.setShowLineNumbers( "Y".equals( element.getAttributeValue( "showlinenumbers" ) ) );
+        mgr.setWordWrap( "Y".equals( element.getAttributeValue( "wordwrap" ) ) );
         try {
             mgr.setToolBarLocation( Integer.parseInt( element.getAttributeValue( "toolbarlocation" ) ) );
         }

@@ -212,7 +212,7 @@
                         </constraints>
                         <properties>
                           <font name="Arial" size="18" style="1"/>
-                          <text value="Quick Notes v2.8"/>
+                          <text value="Quick Notes v2.9"/>
                         </properties>
                       </component>
                       <component id="4aa51" class="javax.swing.JLabel">
