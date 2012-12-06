@@ -37,7 +37,7 @@ public class QuickNotesManager {
     private HashMap<String, QuickNotesPanel> panelMap;
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
-    public static boolean devmode = true;
+    public static boolean devmode = false;
 
     private boolean showLineNumbers = true;
     private boolean wordWrap = false;
