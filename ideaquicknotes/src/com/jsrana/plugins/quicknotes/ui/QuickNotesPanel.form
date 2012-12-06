@@ -243,7 +243,7 @@
               <component id="40fa1" class="javax.swing.JLabel">
                 <constraints/>
                 <properties>
-                  <text value="Quick Notes v2.9"/>
+                  <text value="Quick Notes v2.9.1"/>
                 </properties>
               </component>
             </children>

@@ -37,12 +37,13 @@ public class QuickNotesManager {
     private HashMap<String, QuickNotesPanel> panelMap;
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
-    public static boolean devmode = false;
+    public static boolean devmode = true;
 
     private boolean showLineNumbers = true;
     private boolean wordWrap = false;
     private Font notesFont = new Font( "Arial", Font.PLAIN, 12 );
     private int toolbarLocation = TOOLBARLOCATION_BOTTOM;
+    private Color fontColor = new Color( 0, 0, 0 );
 
     public static final int TOOLBARLOCATION_BOTTOM = 0;
     public static final int TOOLBARLOCATION_TOP = 1;
@@ -208,6 +209,11 @@ public class QuickNotesManager {
                 element.setAttribute( "fontname", font.getFontName() );
                 element.setAttribute( "fontsize", String.valueOf( font.getSize() ) );
 
+                Color fontColor = mgr.getFontColor();
+                element.setAttribute( "fontColorRed", String.valueOf( fontColor.getRed() ) );
+                element.setAttribute( "fontColorGreen", String.valueOf( fontColor.getGreen() ) );
+                element.setAttribute( "fontColorBlue", String.valueOf( fontColor.getBlue() ) );
+
                 FileOutputStream fos = new FileOutputStream( settingsFile );
                 outputter.setFormat( Format.getPrettyFormat() ); // make it Pretty!!!
                 outputter.output( element, fos );
@@ -277,5 +283,19 @@ public class QuickNotesManager {
 
     public int getToolbarLocation() {
         return toolbarLocation;
+    }
+
+    public Color getFontColor() {
+        return fontColor;
+    }
+
+    public void setFontColor( Color newColor ) {
+        fontColor = newColor;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.setFontColor( fontColor );
+            }
+        }
     }
 }

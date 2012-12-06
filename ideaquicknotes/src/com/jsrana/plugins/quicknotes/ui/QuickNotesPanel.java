@@ -201,6 +201,7 @@ public class QuickNotesPanel {
         pane.setFont( quickNotesManager.getNotesFont() );
         pane.setLineWrap( quickNotesManager.isWordWrap() );
         pane.setWrapStyleWord( quickNotesManager.isWordWrap() );
+        pane.setForeground( quickNotesManager.getFontColor() );
 
         topToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
         bottomToolbarPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
@@ -829,6 +830,10 @@ public class QuickNotesPanel {
 
     public JTextArea getTextArea() {
         return pane;
+    }
+
+    public void setFontColor( Color fontColor ) {
+        pane.setForeground( fontColor );
     }
 }
 

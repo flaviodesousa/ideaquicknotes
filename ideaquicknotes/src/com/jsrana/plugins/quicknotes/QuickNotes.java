@@ -173,6 +173,9 @@ public class QuickNotes
             element.setAttribute( "fontname", "Arial" );
             element.setAttribute( "fontsize", "12" );
             element.setAttribute( "wordwrap", "N" );
+            element.setAttribute( "fontColorRed", "0" );
+            element.setAttribute( "fontColorGreen", "0" );
+            element.setAttribute( "fontColorBlue", "0" );
         }
 
         QuickNotesManager mgr = QuickNotesManager.getInstance();
@@ -193,6 +196,30 @@ public class QuickNotes
         }
         mgr.setNotesFont( new Font( element.getAttributeValue( "fontname" ), Font.PLAIN, fontsize ) );
 
+        // set font color
+        int red;
+        try {
+            red = Integer.parseInt( element.getAttributeValue( "fontColorRed" ) );
+        }
+        catch ( NumberFormatException e ) {
+            red = 0;
+        }
+        int green;
+        try {
+            green = Integer.parseInt( element.getAttributeValue( "fontColorGreen" ) );
+        }
+        catch ( NumberFormatException e ) {
+            green = 0;
+        }
+        int blue;
+        try {
+            blue = Integer.parseInt( element.getAttributeValue( "fontColorBlue" ) );
+        }
+        catch ( NumberFormatException e ) {
+            blue = 0;
+        }
+        mgr.setFontColor( new Color( red, green, blue ) );
+
         List notes = element.getChildren();
         if ( notes.size() == 0 ) {
             element.addContent( addNewNote() );
@@ -208,6 +235,7 @@ public class QuickNotes
                 }
             }
         }
+
         return element;
     }
 }

@@ -27,6 +27,8 @@ public class OptionsDialog
     private JLabel labelSource;
     private JLabel labelManual;
     private JLabel wordWrapLabel;
+    private JButton chooseColorButton;
+    private JLabel fontColorLabel;
 
     protected String fontSizes[] = {"8", "10", "11", "12", "14", "16", "18", "20", "24"};
     private boolean showLineNumber;
@@ -159,6 +161,24 @@ public class OptionsDialog
         labelManual.addMouseListener( new MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
                 Utils.openURL( "http://docs.google.com/fileview?id=0B6GyR43t58eXNzQ1ZmUyOTktZDc5NS00ZWRkLTlmMGMtOGQ0ZGIyZjdhM2E0&hl=en" );
+            }
+        } );
+
+        Color fontColor = manager.getFontColor();
+        fontColorLabel.setForeground( fontColor );
+        fontColorLabel.setText( "R:" + fontColor.getRed() + ", G:" + fontColor.getGreen() + ", B:" + fontColor.getBlue() );
+
+        chooseColorButton.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                Color newColor = JColorChooser.showDialog(
+                        OptionsDialog.this,
+                        "Choose Font Color",
+                        fontColorLabel.getForeground() );
+                if ( newColor != null ) {
+                    fontColorLabel.setText( "R:" + newColor.getRed() + ", G:" + newColor.getGreen() + ", B:" + newColor.getBlue() );
+                    fontColorLabel.setForeground( newColor );
+                    manager.setFontColor( newColor );
+                }
             }
         } );
     }
