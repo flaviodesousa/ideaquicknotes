@@ -20,6 +20,8 @@ import com.jsrana.plugins.quicknotes.util.Utils;
 import org.jdom.Element;
 
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.DefaultEditorKit;
@@ -68,19 +70,25 @@ public class QuickNotesPanel {
     private JPanel searchPanel;
     private JTextField searchField;
     private JButton buttonHideSearch;
+    private JLabel quickNotesVersionLabel;
     public Element element;
     private int selectedIndex;
     private Element selectedNote;
     private QuickNotesManager quickNotesManager;
 
-    private static final Color EDITOR_COLOR_BACKGROUND = new Color( 254, 252, 178 );
-    private static final Color EDITOR_COLOR_LINE = new Color( 234, 233, 164 );
-    private static final Color EDITOR_COLOR_LINENUMBER = new Color( 189, 183, 107 );
+    public static final Color EDITOR_COLOR_FONT = new Color( 0, 0, 0 );
+    public static final Color EDITOR_COLOR_BACKGROUND = new Color( 254, 252, 178 );
+    public static final Color EDITOR_COLOR_LINE = new Color( 234, 233, 164 );
+    public static final Color EDITOR_COLOR_LINENUMBER = new Color( 189, 183, 107 );
     private static final Insets EDITOR_INSET = new Insets( 0, 25, 0, 0 );
     private static final Insets EDITOR_INSET_LINENUMBER = new Insets( 0, 35, 0, 0 );
     private static final Insets EDITOR_INSET_LINENUMBER_1000 = new Insets( 0, 38, 0, 0 );
+
     public static SimpleDateFormat sdf = new SimpleDateFormat( "EEE, d MMM yyyy h:mm a" );
     public static SimpleDateFormat titleFormat = new SimpleDateFormat( "MMM d, yyyy h:mm a" );
+
+    private Color backgroundColor = EDITOR_COLOR_BACKGROUND;
+    private boolean showBackgroundLines = true;
 
     JEditorPane searchPane;
 
@@ -230,6 +238,20 @@ public class QuickNotesPanel {
                 handleSearch( e.getKeyCode() );
             }
         } );
+
+        panel1.addAncestorListener( new AncestorListener() {
+            public void ancestorAdded( AncestorEvent event ) {
+            }
+
+            public void ancestorRemoved( AncestorEvent event ) {
+                QuickNotesManager.saveSettings( element );
+            }
+
+            public void ancestorMoved( AncestorEvent event ) {
+            }
+        } );
+
+        quickNotesVersionLabel.setText( QuickNotesManager.VERSION );
     }
 
     /**
@@ -333,8 +355,8 @@ public class QuickNotesPanel {
     /**
      * Selects a Note
      *
-     * @param index - index of the note to select
-     * @param requestFocus - whether to bring selected note in focus or not 
+     * @param index        - index of the note to select
+     * @param requestFocus - whether to bring selected note in focus or not
      */
     public void selectNote( int index,
                             boolean requestFocus ) {
@@ -638,7 +660,7 @@ public class QuickNotesPanel {
             }
 
             public void paint( Graphics g ) {
-                g.setColor( EDITOR_COLOR_BACKGROUND );
+                g.setColor( quickNotesManager.getBackgroundColor() );
                 g.fillRect( 0, 0, getWidth(), getHeight() );
                 Rectangle clip = g.getClipBounds();
                 FontMetrics fm = g.getFontMetrics( getFont() );
@@ -656,14 +678,16 @@ public class QuickNotesPanel {
                 }
                 while ( y < yend ) {
                     if ( quickNotesManager.isShowLineNumbers() && startLineNumber <= getLineCount() ) {
-                        g.setColor( EDITOR_COLOR_LINENUMBER );
+                        g.setColor( quickNotesManager.getBackgroundLineColor() );
                         g.drawString( startLineNumber++ + ".", 2, y );
                     }
-                    g.setColor( EDITOR_COLOR_LINE );
-                    g.drawLine( 0, y + 2, getWidth(), y + 2 );
+                    if ( quickNotesManager.isShowBackgroundLines() ) {
+                        g.setColor( quickNotesManager.getBackgroundLineColor() );
+                        g.drawLine( 0, y + 2, getWidth(), y + 2 );
+                    }
                     y += fontHeignt;
                 }
-                g.setColor( EDITOR_COLOR_LINENUMBER );
+                g.setColor( quickNotesManager.getBackgroundLineColor() );
                 if ( quickNotesManager.isShowLineNumbers() ) {
                     if ( getLineCount() < 1000 ) {
                         g.drawLine( 30, 0, 30, getHeight() );
@@ -834,6 +858,15 @@ public class QuickNotesPanel {
 
     public void setFontColor( Color fontColor ) {
         pane.setForeground( fontColor );
+    }
+
+    public void setBackgroundColor( Color backgroundColor ) {
+        this.backgroundColor = backgroundColor;
+        pane.setBackground( backgroundColor );
+    }
+
+    public void setShowBackgroundLines( boolean showBackgroundLines ) {
+        this.showBackgroundLines = showBackgroundLines;
     }
 }
 

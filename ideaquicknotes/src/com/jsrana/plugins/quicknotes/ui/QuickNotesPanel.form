@@ -240,10 +240,10 @@
               <hspacer id="f4bf2">
                 <constraints/>
               </hspacer>
-              <component id="40fa1" class="javax.swing.JLabel">
+              <component id="40fa1" class="javax.swing.JLabel" binding="quickNotesVersionLabel">
                 <constraints/>
                 <properties>
-                  <text value="Quick Notes v2.9.2"/>
+                  <text value="v2.9.2"/>
                 </properties>
               </component>
             </children>

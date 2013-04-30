@@ -28,9 +28,14 @@
     <br><br>For any bugs or suggestions, please leave a comment on the plugin page at
     <br><a href='http://plugins.intellij.net/plugin/?id=4456' target='_blank'>http://plugins.intellij.net/plugin/?id=4456</a>
     ]]></description>
-    <version>2.9.2</version>
+    <version>3.0</version>
     <change-notes>
         <![CDATA[
+    <p><b>Version 2.9.3</b>
+    <ul>
+    <li>Added ability to change background color</li>
+    <li>Added ability to hide background lines</li>
+    </ul>
     <p><b>Version 2.9.2</b>
     <ul>
     <li>By mistake released the v2.9.1 in DEV mode. Correct mode in this one.</li>

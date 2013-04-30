@@ -38,12 +38,21 @@ public class QuickNotesManager {
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
     public static boolean devmode = false;
+    public static final String VERSION = "v2.9.3";
 
     private boolean showLineNumbers = true;
     private boolean wordWrap = false;
     private Font notesFont = new Font( "Arial", Font.PLAIN, 12 );
     private int toolbarLocation = TOOLBARLOCATION_BOTTOM;
-    private Color fontColor = new Color( 0, 0, 0 );
+    private Color fontColor = QuickNotesPanel.EDITOR_COLOR_FONT;
+    private boolean fontColor_default = true;
+
+    private Color backgroundColor = QuickNotesPanel.EDITOR_COLOR_BACKGROUND;
+    private boolean backgroundColor_default = true;
+
+    private boolean showBackgroundLines = true;
+    private Color backgroundLineColor = QuickNotesPanel.EDITOR_COLOR_LINE;
+    private boolean backgroundLineColor_default = true;
 
     public static final int TOOLBARLOCATION_BOTTOM = 0;
     public static final int TOOLBARLOCATION_TOP = 1;
@@ -135,7 +144,6 @@ public class QuickNotesManager {
     }
 
     /**
-     *
      * @return
      */
     public boolean isWordWrap() {
@@ -143,7 +151,6 @@ public class QuickNotesManager {
     }
 
     /**
-     * 
      * @param wordWrap
      */
     public void setWordWrap( boolean wordWrap ) {
@@ -210,9 +217,23 @@ public class QuickNotesManager {
                 element.setAttribute( "fontsize", String.valueOf( font.getSize() ) );
 
                 Color fontColor = mgr.getFontColor();
+                element.setAttribute( "fontColorDefault", mgr.fontColor_default ? "Y" : "N" );
                 element.setAttribute( "fontColorRed", String.valueOf( fontColor.getRed() ) );
                 element.setAttribute( "fontColorGreen", String.valueOf( fontColor.getGreen() ) );
                 element.setAttribute( "fontColorBlue", String.valueOf( fontColor.getBlue() ) );
+
+                Color bgColor = mgr.getBackgroundColor();
+                element.setAttribute( "bgColorDefault", mgr.isBackgroundColor_default() ? "Y" : "N" );
+                element.setAttribute( "bgColorRed", String.valueOf( bgColor.getRed() ) );
+                element.setAttribute( "bgColorGreen", String.valueOf( bgColor.getGreen() ) );
+                element.setAttribute( "bgColorBlue", String.valueOf( bgColor.getBlue() ) );
+
+                Color bgLineColor = mgr.getBackgroundLineColor();
+                element.setAttribute( "bgLineColorShow", mgr.isShowBackgroundLines() ? "Y" : "N" );
+                element.setAttribute( "bgLineColorDefault", mgr.isBackgroundLineColor_default() ? "Y" : "N" );
+                element.setAttribute( "bgLineColorRed", String.valueOf( bgLineColor.getRed() ) );
+                element.setAttribute( "bgLineColorGreen", String.valueOf( bgLineColor.getGreen() ) );
+                element.setAttribute( "bgLineColorBlue", String.valueOf( bgLineColor.getBlue() ) );
 
                 FileOutputStream fos = new FileOutputStream( settingsFile );
                 outputter.setFormat( Format.getPrettyFormat() ); // make it Pretty!!!
@@ -289,7 +310,9 @@ public class QuickNotesManager {
         return fontColor;
     }
 
-    public void setFontColor( Color newColor ) {
+    public void setFontColor( Color newColor,
+                              boolean defaultColor ) {
+        fontColor_default = false;
         fontColor = newColor;
         for ( String id : panelMap.keySet() ) {
             if ( id != null ) {
@@ -297,5 +320,69 @@ public class QuickNotesManager {
                 qnp.setFontColor( fontColor );
             }
         }
+    }
+
+    public void setFontColor_default( boolean fontColor_default ) {
+        this.fontColor_default = fontColor_default;
+    }
+
+    public boolean isFontColor_default() {
+        return fontColor_default;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor( Color newColor,
+                                    boolean defaultColor ) {
+        backgroundColor_default = defaultColor;
+        backgroundColor = newColor;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.setBackgroundColor( backgroundColor );
+            }
+        }
+    }
+
+    public void setBackgroundColor_default( boolean backgroundColor_default ) {
+        this.backgroundColor_default = backgroundColor_default;
+    }
+
+    public boolean isBackgroundColor_default() {
+        return backgroundColor_default;
+    }
+
+    public void setShowBackgroundLines( boolean showBackgroundLines ) {
+        this.showBackgroundLines = showBackgroundLines;
+        for ( String id : panelMap.keySet() ) {
+            if ( id != null ) {
+                QuickNotesPanel qnp = panelMap.get( id );
+                qnp.setShowBackgroundLines( showBackgroundLines );
+            }
+        }
+    }
+
+    public boolean isShowBackgroundLines() {
+        return showBackgroundLines;
+    }
+
+    public Color getBackgroundLineColor() {
+        return backgroundLineColor;
+    }
+
+    public void setBackgroundLineColor( Color backgroundLineColor,
+                                        boolean defaultColor ) {
+        backgroundLineColor_default = defaultColor;
+        this.backgroundLineColor = backgroundLineColor;
+    }
+
+    public boolean isBackgroundLineColor_default() {
+        return backgroundLineColor_default;
+    }
+
+    public void setBackgroundLineColor_default( boolean backgroundLineColor_default ) {
+        this.backgroundLineColor_default = backgroundLineColor_default;
     }
 }

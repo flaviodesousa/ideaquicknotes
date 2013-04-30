@@ -173,9 +173,23 @@ public class QuickNotes
             element.setAttribute( "fontname", "Arial" );
             element.setAttribute( "fontsize", "12" );
             element.setAttribute( "wordwrap", "N" );
+            element.setAttribute( "fontColorDefault", "Y" );
             element.setAttribute( "fontColorRed", "0" );
             element.setAttribute( "fontColorGreen", "0" );
             element.setAttribute( "fontColorBlue", "0" );
+
+            Color bgColor = QuickNotesPanel.EDITOR_COLOR_BACKGROUND;
+            element.setAttribute( "bgColorDefault", "Y" );
+            element.setAttribute( "bgColorRed", String.valueOf( bgColor.getRed() ) );
+            element.setAttribute( "bgColorGreen", String.valueOf( bgColor.getGreen() ) );
+            element.setAttribute( "bgColorBlue", String.valueOf( bgColor.getBlue() ) );
+
+            Color bgLineColor = QuickNotesPanel.EDITOR_COLOR_LINE;
+            element.setAttribute( "bgLineColorShow", "Y" );
+            element.setAttribute( "bgLineColorDefault", "Y" );
+            element.setAttribute( "bgLineColorRed", String.valueOf( bgLineColor.getRed() ) );
+            element.setAttribute( "bgLineColorGreen", String.valueOf( bgLineColor.getGreen() ) );
+            element.setAttribute( "bgLineColorBlue", String.valueOf( bgLineColor.getBlue() ) );
         }
 
         QuickNotesManager mgr = QuickNotesManager.getInstance();
@@ -197,28 +211,86 @@ public class QuickNotes
         mgr.setNotesFont( new Font( element.getAttributeValue( "fontname" ), Font.PLAIN, fontsize ) );
 
         // set font color
-        int red;
-        try {
-            red = Integer.parseInt( element.getAttributeValue( "fontColorRed" ) );
+        mgr.setFontColor_default( "Y".equals( element.getAttributeValue( "fontColorDefault" ) ) );
+        if ( !mgr.isFontColor_default() ) {
+            int red;
+            try {
+                red = Integer.parseInt( element.getAttributeValue( "fontColorRed" ) );
+            }
+            catch ( NumberFormatException e ) {
+                red = 0;
+            }
+            int green;
+            try {
+                green = Integer.parseInt( element.getAttributeValue( "fontColorGreen" ) );
+            }
+            catch ( NumberFormatException e ) {
+                green = 0;
+            }
+            int blue;
+            try {
+                blue = Integer.parseInt( element.getAttributeValue( "fontColorBlue" ) );
+            }
+            catch ( NumberFormatException e ) {
+                blue = 0;
+            }
+            mgr.setFontColor( new Color( red, green, blue ), false );
         }
-        catch ( NumberFormatException e ) {
-            red = 0;
+
+        // set background color
+        mgr.setBackgroundColor_default( "Y".equals( element.getAttributeValue( "bgColorDefault" ) ) );
+        if ( !mgr.isBackgroundColor_default() ) {
+            int red;
+            try {
+                red = Integer.parseInt( element.getAttributeValue( "bgColorRed" ) );
+            }
+            catch ( NumberFormatException e ) {
+                red = 0;
+            }
+            int green;
+            try {
+                green = Integer.parseInt( element.getAttributeValue( "bgColorGreen" ) );
+            }
+            catch ( NumberFormatException e ) {
+                green = 0;
+            }
+            int blue;
+            try {
+                blue = Integer.parseInt( element.getAttributeValue( "bgColorBlue" ) );
+            }
+            catch ( NumberFormatException e ) {
+                blue = 0;
+            }
+            mgr.setBackgroundColor( new Color( red, green, blue ), false );
         }
-        int green;
-        try {
-            green = Integer.parseInt( element.getAttributeValue( "fontColorGreen" ) );
+
+        // set line properties
+        mgr.setShowBackgroundLines( "Y".equals( element.getAttributeValue( "bgLineColorShow" ) ) );
+        mgr.setBackgroundLineColor_default( "Y".equals( element.getAttributeValue( "bgLineColorDefault" ) ) );
+        if ( !mgr.isBackgroundLineColor_default() ) {
+            int red;
+            try {
+                red = Integer.parseInt( element.getAttributeValue( "bgLineColorRed" ) );
+            }
+            catch ( NumberFormatException e ) {
+                red = 0;
+            }
+            int green;
+            try {
+                green = Integer.parseInt( element.getAttributeValue( "bgLineColorGreen" ) );
+            }
+            catch ( NumberFormatException e ) {
+                green = 0;
+            }
+            int blue;
+            try {
+                blue = Integer.parseInt( element.getAttributeValue( "bgLineColorBlue" ) );
+            }
+            catch ( NumberFormatException e ) {
+                blue = 0;
+            }
+            mgr.setBackgroundLineColor( new Color( red, green, blue ), false );
         }
-        catch ( NumberFormatException e ) {
-            green = 0;
-        }
-        int blue;
-        try {
-            blue = Integer.parseInt( element.getAttributeValue( "fontColorBlue" ) );
-        }
-        catch ( NumberFormatException e ) {
-            blue = 0;
-        }
-        mgr.setFontColor( new Color( red, green, blue ) );
 
         List notes = element.getChildren();
         if ( notes.size() == 0 ) {

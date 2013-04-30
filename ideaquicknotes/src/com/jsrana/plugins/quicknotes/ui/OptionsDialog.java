@@ -27,12 +27,22 @@ public class OptionsDialog
     private JLabel labelSource;
     private JLabel labelManual;
     private JLabel wordWrapLabel;
-    private JButton chooseColorButton;
-    private JLabel fontColorLabel;
+    private JRadioButton defaultBackgroundColorRadio;
+    private JRadioButton myBackgroundColorRadio;
+    private JButton chooseBackgroundColorButton;
+    private JLabel showLinesLabel;
+    private JRadioButton defaultLineColorRadio;
+    private JRadioButton myLineColorRadio;
+    private JButton chooseLineColorButton;
+    private JRadioButton defaultFontColorRadio;
+    private JRadioButton myFontColorRadio;
+    private JButton chooseFontColorButton;
+    private JLabel aboutVersionLabel;
 
     protected String fontSizes[] = {"8", "10", "11", "12", "14", "16", "18", "20", "24"};
     private boolean showLineNumber;
     private boolean wordwrap;
+    private boolean showBackgroundLines;
 
     public OptionsDialog() {
         super();
@@ -164,23 +174,88 @@ public class OptionsDialog
             }
         } );
 
-        Color fontColor = manager.getFontColor();
-        fontColorLabel.setForeground( fontColor );
-        fontColorLabel.setText( "R:" + fontColor.getRed() + ", G:" + fontColor.getGreen() + ", B:" + fontColor.getBlue() );
-
-        chooseColorButton.addActionListener( new ActionListener() {
+        chooseFontColorButton.addActionListener( new ActionListener() {
             public void actionPerformed( ActionEvent e ) {
+                myFontColorRadio.setSelected( true );
                 Color newColor = JColorChooser.showDialog(
                         OptionsDialog.this,
                         "Choose Font Color",
-                        fontColorLabel.getForeground() );
+                        manager.getFontColor() );
                 if ( newColor != null ) {
-                    fontColorLabel.setText( "R:" + newColor.getRed() + ", G:" + newColor.getGreen() + ", B:" + newColor.getBlue() );
-                    fontColorLabel.setForeground( newColor );
-                    manager.setFontColor( newColor );
+                    manager.setFontColor( newColor, false );
                 }
             }
         } );
+
+        defaultFontColorRadio.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                manager.setFontColor( QuickNotesPanel.EDITOR_COLOR_FONT, true );
+            }
+        } );
+
+        chooseBackgroundColorButton.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                myBackgroundColorRadio.setSelected( true );
+                Color newColor = JColorChooser.showDialog(
+                        OptionsDialog.this,
+                        "Choose Background Color",
+                        manager.getBackgroundColor() );
+                if ( newColor != null ) {
+                    manager.setBackgroundColor( newColor, false );
+                }
+            }
+        } );
+
+        defaultBackgroundColorRadio.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                manager.setBackgroundColor( QuickNotesPanel.EDITOR_COLOR_BACKGROUND, true );
+            }
+        } );
+
+        if ( manager.isBackgroundColor_default() ) {
+            defaultBackgroundColorRadio.setSelected( true );
+        }
+        else {
+            myBackgroundColorRadio.setSelected( true );
+        }
+
+        showLinesLabel.setIcon( manager.isShowBackgroundLines() ? Utils.ICON_ON : Utils.ICON_OFF );
+        showLinesLabel.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
+        showLinesLabel.addMouseListener( new MouseAdapter() {
+            public void mouseClicked( MouseEvent e ) {
+                showBackgroundLines = !showBackgroundLines;
+                manager.setShowBackgroundLines( showBackgroundLines );
+                showLinesLabel.setIcon( showBackgroundLines ? Utils.ICON_ON : Utils.ICON_OFF );
+            }
+        } );
+
+        if ( manager.isBackgroundLineColor_default() ) {
+            defaultLineColorRadio.setSelected( true );
+        }
+        else {
+            myLineColorRadio.setSelected( true );
+        }
+
+        chooseLineColorButton.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                myLineColorRadio.setSelected( true );
+                Color newColor = JColorChooser.showDialog(
+                        OptionsDialog.this,
+                        "Choose Line Color",
+                        manager.getBackgroundLineColor() );
+                if ( newColor != null ) {
+                    manager.setBackgroundLineColor( newColor, false );
+                }
+            }
+        } );
+
+        defaultLineColorRadio.addActionListener( new ActionListener() {
+            public void actionPerformed( ActionEvent e ) {
+                manager.setBackgroundLineColor( QuickNotesPanel.EDITOR_COLOR_LINE, true );
+            }
+        } );
+
+        aboutVersionLabel.setText( "Quick Notes " + QuickNotesManager.VERSION );
     }
 
     private void onOK() {
