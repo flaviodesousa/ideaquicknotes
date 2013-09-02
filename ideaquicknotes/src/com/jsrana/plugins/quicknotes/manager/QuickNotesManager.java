@@ -38,7 +38,7 @@ public class QuickNotesManager {
     private int index = 0;
     private static QuickNotesManager instance = new QuickNotesManager();
     public static boolean devmode = false;
-    public static final String VERSION = "v2.9.3";
+    public static final String VERSION = "v2.9.4";
 
     private boolean showLineNumbers = true;
     private boolean wordWrap = false;
